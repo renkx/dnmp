@@ -1,0 +1,135 @@
+version: "3"
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${DEFAULT_SUBNET}
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: ./renkxservices/nginx/Dockerfile
+      args:
+        NGINX_VERSION: nginx:${NGINX_VERSION}
+        CONTAINER_PACKAGE_URL: ${CONTAINER_PACKAGE_URL}
+        NGINX_INSTALL_APPS: ${NGINX_INSTALL_APPS}
+    container_name: nginx
+    hostname: nginx
+    ports:
+      - "${NGINX_HTTP_HOST_PORT}:80"
+      - "${NGINX_HTTPS_HOST_PORT}:443"
+    volumes:
+      - ${SOURCE_DIR}:/www/:rw
+      - ${NGINX_SSL_CERTIFICATE_DIR}:/ssl:rw
+      - ${NGINX_CONFD_DIR}:/etc/nginx/conf.d/:rw
+      - ${NGINX_CONF_FILE}:/etc/nginx/nginx.conf:ro
+      - ${NGINX_FASTCGI_PHP_CONF}:/etc/nginx/fastcgi-php.conf:ro
+      - ${NGINX_FASTCGI_PARAMS}:/etc/nginx/fastcgi_params:ro
+      - ${NGINX_LOG_DIR}:/var/log/nginx/:rw
+    environment:
+      TZ: "$TZ"
+    restart: always
+    networks:
+     default:
+        ipv4_address: ${NGINX_IPV4}
+
+  php:
+    build:
+      context: .
+      dockerfile: ./renkxservices/php/Dockerfile
+      args:
+        PHP_VERSION: php:${PHP_VERSION}-fpm-alpine
+        CONTAINER_PACKAGE_URL: ${CONTAINER_PACKAGE_URL}
+        PHP_EXTENSIONS: ${PHP_EXTENSIONS}
+        TZ: "$TZ"
+    container_name: php
+    hostname: php
+    #expose:
+    #  - 9501
+    #extra_hosts:
+    #  - "www.site1.com:172.17.0.1"
+    volumes:
+      - ${SOURCE_DIR}:/www/:rw
+      - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini:ro
+      - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf:rw
+      - ${PHP_LOG_DIR}:/var/log/php
+      - ${DATA_DIR}/composer:/tmp/composer
+      - /root/.oh-my-zsh:/root/.oh-my-zsh
+      - /root/.zshrc:/root/.zshrc
+    restart: always
+    cap_add:
+      - SYS_PTRACE
+    networks:
+     - default
+
+  mysql:
+    image: mysql:${MYSQL_VERSION}
+    container_name: mysql
+    hostname: mysql
+    # 运行实例的用户，如果不设置，mac-box-docker模式下共享和挂载同一个目录 mysql会报错
+    user: "1000:50"
+    ports:
+      - "${MYSQL_HOST_PORT}:3306"
+    volumes:
+      - ${MYSQL_CONF_FILE}:/etc/mysql/conf.d/mysql.cnf:ro
+      - ${DATA_DIR}/mysql8:/var/lib/mysql/:rw
+    restart: always
+    networks:
+      - default
+    # 如果不设置，mac-box-docker模式下共享和挂载同一个目录 mysql会报错
+    command: --innodb-use-native-aio=0
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      TZ: "$TZ"
+
+  redis:
+    image: redis:${REDIS_VERSION}
+    container_name: redis
+    hostname: redis
+    ports:
+      - "${REDIS_HOST_PORT}:6379"
+    volumes:
+      - ${REDIS_CONF_FILE}:/etc/redis.conf:ro
+      - ${DATA_DIR}/redis:/data/:rw
+    restart: always
+    entrypoint: ["redis-server", "/etc/redis.conf"]
+    environment:
+      TZ: "$TZ"
+    networks:
+      - default
+
+  frpc:
+    build:
+      context: ./renkxservices/frp
+    container_name: frpc
+    hostname: frpc
+    restart: always
+    #tty: true
+    #stdin_open: true
+    volumes:
+      - ${FRPC_CONF_FILE}:/frpc.ini
+    command: /frp/frpc -c /frpc.ini
+    networks:
+      - default
+
+  bbwws:
+    container_name: bbwws
+    hostname: bbwws
+    # docker login --username=liunian@1864937040740414 registry.cn-beijing.aliyuncs.com
+    image: registry.cn-beijing.aliyuncs.com/kdd/laravel-echo-server:v1.0
+    restart: always
+    tty: true
+    stdin_open: true
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_KEY_PREFIX=kdd_ec_database_
+      - REDIS_DB_BACKEND=no
+    volumes:
+      - ${BBWWS_CONF_DIR}:/app
+    extra_hosts:
+      - "bbwapi.jobuse.cn:${NGINX_IPV4}"
+    networks:
+      - default
