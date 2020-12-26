@@ -32,7 +32,7 @@ services:
       TZ: "$TZ"
     restart: always
     networks:
-     default:
+      default:
         ipv4_address: ${NGINX_IPV4}
 
   php:
@@ -56,13 +56,15 @@ services:
       - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf:rw
       - ${PHP_LOG_DIR}:/var/log/php
       - ${DATA_DIR}/composer:/tmp/composer
+      - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig:rw
+      - ${ROOT_SSH_DIR}:/root/.ssh:rw
       - /root/.oh-my-zsh:/root/.oh-my-zsh
       - /root/.zshrc:/root/.zshrc
     restart: always
     cap_add:
       - SYS_PTRACE
     networks:
-     - default
+      - default
 
   mysql:
     image: mysql:${MYSQL_VERSION}
@@ -131,5 +133,30 @@ services:
       - ${BBWWS_CONF_DIR}:/app
     extra_hosts:
       - "bbwapi.jobuse.cn:${NGINX_IPV4}"
+    networks:
+      - default
+
+  supervisor:
+    build:
+      context: .
+      dockerfile: ./renkxservices/supervisor/Dockerfile
+      args:
+        PHP_VERSION: php:${PHP_VERSION}-fpm-alpine
+        CONTAINER_PACKAGE_URL: ${CONTAINER_PACKAGE_URL}
+        PHP_EXTENSIONS: ${PHP_EXTENSIONS}
+        TZ: "$TZ"
+    container_name: supervisor
+    hostname: supervisor
+    volumes:
+      - ${SOURCE_DIR}:/www/:rw
+      - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini:ro
+      - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf:rw
+      - ${SUPERVISOR_PHP_LOG_DIR}:/var/log/php
+      - ${SUPERVISOR_LOG}:/var/log/supervisor/:rw
+      - ${SUPERVISOR_CONFIG}:/etc/supervisor/conf.d/:rw
+      - ${SUPERVISOR_CONF_FILE}:/etc/supervisor/supervisord.conf:ro
+    restart: always
+    cap_add:
+      - SYS_PTRACE
     networks:
       - default
