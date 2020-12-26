@@ -22,8 +22,8 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions
 RUN apk --no-cache add tzdata \
     && cp "/usr/share/zoneinfo/$TZ" /etc/localtime \
     && echo "$TZ" > /etc/timezone \
-    # todo 安装zsh和git
-    && apk --no-cache add zsh git
+    # todo 安装zsh和git等
+    && apk --no-cache add zsh git openssh
 
 
 # Fix: https://github.com/docker-library/php/issues/240
