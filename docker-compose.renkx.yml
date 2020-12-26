@@ -56,6 +56,7 @@ services:
       - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf:rw
       - ${PHP_LOG_DIR}:/var/log/php
       - ${DATA_DIR}/composer:/tmp/composer
+      - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
       - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig:rw
       - ${ROOT_SSH_DIR}:/root/.ssh:rw
       - /root/.oh-my-zsh:/root/.oh-my-zsh
