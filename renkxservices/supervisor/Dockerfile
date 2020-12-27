@@ -21,7 +21,9 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions
 
 RUN apk --no-cache add tzdata \
     && cp "/usr/share/zoneinfo/$TZ" /etc/localtime \
-    && echo "$TZ" > /etc/timezone
+    && echo "$TZ" > /etc/timezone \
+    # todo ssh
+    && apk --no-cache add openssh
 
 
 # Fix: https://github.com/docker-library/php/issues/240
@@ -35,7 +37,9 @@ ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 #ENV COMPOSER_HOME=/tmp/composer
 
 # php image's www-data user uid & gid are 82, change them to 1000 (primary user)
-RUN apk --no-cache add shadow && usermod -u 1000 www-data && groupmod -g 1000 www-data
+RUN apk --no-cache add shadow && usermod -u 1000 www-data && groupmod -g 1000 www-data \
+    # todo 更改用户shell www-data需要执行定时脚本
+    && usermod -s /bin/ash www-data
 
 # todo 安装supervisor
 RUN apk update \

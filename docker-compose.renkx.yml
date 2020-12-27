@@ -59,8 +59,9 @@ services:
       - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
       - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig:rw
       - ${ROOT_SSH_DIR}:/root/.ssh:rw
-      - /root/.oh-my-zsh:/root/.oh-my-zsh
-      - /root/.zshrc:/root/.zshrc
+      - ${ROOT_OH_MY_ZSH}:/root/.oh-my-zsh
+      - ${ROOT_ZSHRC_FILE}:/root/.zshrc
+      - ${ROOT_ZSH_HISTORY_FILE}:/root/.zsh_history
     restart: always
     cap_add:
       - SYS_PTRACE
@@ -72,7 +73,7 @@ services:
     container_name: mysql
     hostname: mysql
     # 运行实例的用户，如果不设置，mac-box-docker模式下共享和挂载同一个目录 mysql会报错
-    user: "1000:50"
+    #user: "1000:50"
     ports:
       - "${MYSQL_HOST_PORT}:3306"
     volumes:
@@ -82,7 +83,7 @@ services:
     networks:
       - default
     # 如果不设置，mac-box-docker模式下共享和挂载同一个目录 mysql会报错
-    command: --innodb-use-native-aio=0
+    #command: --innodb-use-native-aio=0
     environment:
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
       TZ: "$TZ"
@@ -95,7 +96,8 @@ services:
       - "${REDIS_HOST_PORT}:6379"
     volumes:
       - ${REDIS_CONF_FILE}:/etc/redis.conf:ro
-      - ${DATA_DIR}/redis:/data/:rw
+      # vagrant报错情况：不开持久化，挂载data目录 docker整体崩溃
+      #- ${DATA_DIR}/redis:/data/:rw
     restart: always
     entrypoint: ["redis-server", "/etc/redis.conf"]
     environment:
@@ -109,8 +111,6 @@ services:
     container_name: frpc
     hostname: frpc
     restart: always
-    #tty: true
-    #stdin_open: true
     volumes:
       - ${FRPC_CONF_FILE}:/frpc.ini
     command: /frp/frpc -c /frpc.ini

@@ -23,7 +23,7 @@ RUN apk --no-cache add tzdata \
     && cp "/usr/share/zoneinfo/$TZ" /etc/localtime \
     && echo "$TZ" > /etc/timezone \
     # todo 安装zsh和git等
-    && apk --no-cache add zsh git openssh
+    && apk --no-cache add zsh git openssh vim
 
 
 # Fix: https://github.com/docker-library/php/issues/240
