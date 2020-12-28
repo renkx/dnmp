@@ -21,9 +21,7 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions
 
 RUN apk --no-cache add tzdata \
     && cp "/usr/share/zoneinfo/$TZ" /etc/localtime \
-    && echo "$TZ" > /etc/timezone \
-    # todo 安装zsh和git等
-    && apk --no-cache add zsh git openssh vim
+    && echo "$TZ" > /etc/timezone
 
 
 # Fix: https://github.com/docker-library/php/issues/240
@@ -37,9 +35,13 @@ RUN curl -o /usr/bin/composer https://mirrors.aliyun.com/composer/composer.phar 
 ENV COMPOSER_HOME=/tmp/composer
 
 # php image's www-data user uid & gid are 82, change them to 1000 (primary user)
-RUN apk --no-cache add shadow && usermod -u 1000 www-data && groupmod -g 1000 www-data \
-    # todo 更改用户shell www-data需要执行定时脚本
-    && usermod -s /bin/ash www-data
+RUN apk --no-cache add shadow && usermod -u 1000 www-data && groupmod -g 1000 www-data
 
+# todo 安装zsh和git等
+RUN apk --no-cache add zsh git openssh vim \
+    # todo 更改用户shell www-data需要执行定时脚本
+    && usermod -s /bin/ash www-data \
+    # todo 最后需要删除zsh操作记录
+    && rm -f /root/.zsh_history.new
 
 WORKDIR /www
