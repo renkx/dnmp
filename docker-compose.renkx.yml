@@ -61,7 +61,6 @@ services:
       - ${ROOT_SSH_DIR}:/root/.ssh:rw
       - ${ROOT_OH_MY_ZSH}:/root/.oh-my-zsh
       - ${ROOT_ZSHRC_FILE}:/root/.zshrc
-      - ${ROOT_ZSH_HISTORY_FILE}:/root/.zsh_history
     restart: always
     cap_add:
       - SYS_PTRACE
@@ -115,7 +114,8 @@ services:
       - ${FRPC_CONF_FILE}:/frpc.ini
     command: /frp/frpc -c /frpc.ini
     networks:
-      - default
+      default:
+        ipv4_address: ${FRPC_IPV4}
 
   bbwws:
     container_name: bbwws
@@ -156,8 +156,26 @@ services:
       - ${SUPERVISOR_LOG}:/var/log/supervisor/:rw
       - ${SUPERVISOR_CONFIG}:/etc/supervisor/conf.d/:rw
       - ${SUPERVISOR_CONF_FILE}:/etc/supervisor/supervisord.conf:ro
+      - ${SUPERVISOR_CRONTAB_ROOT_FILE}:/etc/crontabs/root
     restart: always
     cap_add:
       - SYS_PTRACE
+    networks:
+      - default
+
+  node:
+    image: "registry.cn-beijing.aliyuncs.com/renkx/node:0.1"
+    container_name: node
+    hostname: node
+    working_dir: /www
+    restart: always
+    tty: true
+    stdin_open: true
+    volumes:
+      - ${SOURCE_DIR}:/www/:rw
+      - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig:rw
+      - ${ROOT_SSH_DIR}:/root/.ssh:rw
+      - ${ROOT_OH_MY_ZSH}:/root/.oh-my-zsh
+      - ${ROOT_ZSHRC_FILE}:/root/.zshrc
     networks:
       - default
