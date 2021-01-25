@@ -114,8 +114,7 @@ services:
       - ${FRPC_CONF_FILE}:/frpc.ini
     command: /frp/frpc -c /frpc.ini
     networks:
-      default:
-        ipv4_address: ${FRPC_IPV4}
+      - default
 
   bbwws:
     container_name: bbwws
