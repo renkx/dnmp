@@ -117,22 +117,30 @@ services:
       - default
 
   bbwws:
+    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
     container_name: bbwws
     hostname: bbwws
-    # docker login --username=liunian@1864937040740414 registry.cn-beijing.aliyuncs.com
-    image: registry.cn-beijing.aliyuncs.com/kdd/laravel-echo-server:v1.0
     restart: always
     tty: true
     stdin_open: true
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_KEY_PREFIX=kdd_ec_database_
-      - REDIS_DB_BACKEND=no
     volumes:
       - ${BBWWS_CONF_DIR}:/app
     extra_hosts:
-      - "bbwapi.jobuse.cn:${NGINX_IPV4}"
+      - "${DOMAIN_BBWAPI}:${NGINX_IPV4}"
+    networks:
+      - default
+
+  bbwtdtws:
+    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
+    container_name: bbwtdtws
+    hostname: bbwtdtws
+    restart: always
+    tty: true
+    stdin_open: true
+    volumes:
+      - ${BBWTDTWS_CONF_DIR}:/app
+    extra_hosts:
+      - "${DOMAIN_BBWAPI}:${NGINX_IPV4}"
     networks:
       - default
 
