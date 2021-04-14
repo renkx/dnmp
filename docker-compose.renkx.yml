@@ -127,6 +127,10 @@ services:
       - ${BBWWS_CONF_DIR}:/app
     extra_hosts:
       - "${DOMAIN_BBWAPI}:${NGINX_IPV4}"
+    healthcheck:
+      test: [ "CMD", "/usr/local/bin/health-check"]
+      interval: 30s
+      timeout: 5s
     networks:
       - default
 
@@ -141,6 +145,10 @@ services:
       - ${BBWTDTWS_CONF_DIR}:/app
     extra_hosts:
       - "${DOMAIN_BBWAPI}:${NGINX_IPV4}"
+    healthcheck:
+      test: [ "CMD", "/usr/local/bin/health-check"]
+      interval: 30s
+      timeout: 5s
     networks:
       - default
 
