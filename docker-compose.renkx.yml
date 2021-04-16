@@ -36,20 +36,10 @@ services:
         ipv4_address: ${NGINX_IPV4}
 
   php:
-    build:
-      context: .
-      dockerfile: ./renkxservices/php/Dockerfile
-      args:
-        PHP_VERSION: php:${PHP_VERSION}-fpm-alpine
-        CONTAINER_PACKAGE_URL: ${CONTAINER_PACKAGE_URL}
-        PHP_EXTENSIONS: ${PHP_EXTENSIONS}
-        TZ: "$TZ"
+    image: registry.cn-beijing.aliyuncs.com/renkx/php:dnmp-php7
     container_name: php
     hostname: php
-    #expose:
-    #  - 9501
-    #extra_hosts:
-    #  - "www.site1.com:172.17.0.1"
+    working_dir: /www
     volumes:
       - ${SOURCE_DIR}:/www/:rw
       - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini:ro
@@ -66,6 +56,34 @@ services:
       - SYS_PTRACE
     networks:
       - default
+
+  #  php:
+  #    build:
+  #      context: .
+  #      dockerfile: ./renkxservices/php/Dockerfile
+  #      args:
+  #        PHP_VERSION: php:${PHP_VERSION}-fpm-alpine
+  #        CONTAINER_PACKAGE_URL: ${CONTAINER_PACKAGE_URL}
+  #        PHP_EXTENSIONS: ${PHP_EXTENSIONS}
+  #        TZ: "$TZ"
+  #    container_name: php
+  #    hostname: php
+  #    volumes:
+  #      - ${SOURCE_DIR}:/www/:rw
+  #      - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini:ro
+  #      - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf:rw
+  #      - ${PHP_LOG_DIR}:/var/log/php
+  #      - ${DATA_DIR}/composer:/tmp/composer
+  #      - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
+  #      - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig:rw
+  #      - ${ROOT_SSH_DIR}:/root/.ssh:rw
+  #      - ${ROOT_OH_MY_ZSH}:/root/.oh-my-zsh
+  #      - ${ROOT_ZSHRC_FILE}:/root/.zshrc
+  #    restart: always
+  #    cap_add:
+  #      - SYS_PTRACE
+  #    networks:
+  #     - default
 
   mysql:
     image: mysql:${MYSQL_VERSION}
@@ -128,7 +146,7 @@ services:
     extra_hosts:
       - "${DOMAIN_BBWAPI}:${NGINX_IPV4}"
     healthcheck:
-      test: [ "CMD", "/usr/local/bin/health-check"]
+      test: [ "CMD-SHELL", "/usr/local/bin/health-check"]
       interval: 30s
       timeout: 5s
     networks:
@@ -146,23 +164,17 @@ services:
     extra_hosts:
       - "${DOMAIN_BBWAPI}:${NGINX_IPV4}"
     healthcheck:
-      test: [ "CMD", "/usr/local/bin/health-check"]
+      test: [ "CMD-SHELL", "/usr/local/bin/health-check"]
       interval: 30s
       timeout: 5s
     networks:
       - default
 
   supervisor:
-    build:
-      context: .
-      dockerfile: ./renkxservices/supervisor/Dockerfile
-      args:
-        PHP_VERSION: php:${PHP_VERSION}-fpm-alpine
-        CONTAINER_PACKAGE_URL: ${CONTAINER_PACKAGE_URL}
-        PHP_EXTENSIONS: ${PHP_EXTENSIONS}
-        TZ: "$TZ"
+    image: registry.cn-beijing.aliyuncs.com/renkx/php:dnmp-php7
     container_name: supervisor
     hostname: supervisor
+    working_dir: /etc/supervisor/conf.d
     volumes:
       - ${SOURCE_DIR}:/www/:rw
       - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini:ro
@@ -175,8 +187,35 @@ services:
     restart: always
     cap_add:
       - SYS_PTRACE
+    command: ["supervisord", "--nodaemon", "--configuration", "/etc/supervisor/supervisord.conf"]
     networks:
       - default
+
+  #  supervisor:
+  #    build:
+  #      context: .
+  #      dockerfile: ./renkxservices/supervisor/Dockerfile
+  #      args:
+  #        PHP_VERSION: php:${PHP_VERSION}-fpm-alpine
+  #        CONTAINER_PACKAGE_URL: ${CONTAINER_PACKAGE_URL}
+  #        PHP_EXTENSIONS: ${PHP_EXTENSIONS}
+  #        TZ: "$TZ"
+  #    container_name: supervisor
+  #    hostname: supervisor
+  #    volumes:
+  #      - ${SOURCE_DIR}:/www/:rw
+  #      - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini:ro
+  #      - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf:rw
+  #      - ${SUPERVISOR_PHP_LOG_DIR}:/var/log/php
+  #      - ${SUPERVISOR_LOG}:/var/log/supervisor/:rw
+  #      - ${SUPERVISOR_CONFIG}:/etc/supervisor/conf.d/:rw
+  #      - ${SUPERVISOR_CONF_FILE}:/etc/supervisor/supervisord.conf:ro
+  #      - ${SUPERVISOR_CRONTAB_ROOT_FILE}:/etc/crontabs/root
+  #    restart: always
+  #    cap_add:
+  #      - SYS_PTRACE
+  #    networks:
+  #      - default
 
   node:
     image: "registry.cn-beijing.aliyuncs.com/renkx/node:0.1"

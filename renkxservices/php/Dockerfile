@@ -37,11 +37,12 @@ ENV COMPOSER_HOME=/tmp/composer
 # php image's www-data user uid & gid are 82, change them to 1000 (primary user)
 RUN apk --no-cache add shadow && usermod -u 1000 www-data && groupmod -g 1000 www-data
 
-# todo 安装zsh和git等
-RUN apk --no-cache add zsh git openssh vim \
+# todo 安装zsh和git、supervisor等
+RUN apk update \
+	&& apk upgrade \
+	&& apk --no-cache add zsh git supervisor openssh vim \
+	&& rm -rf /var/cache/apk/* \
     # todo 更改用户shell www-data需要执行定时脚本
     && usermod -s /bin/ash www-data \
     # todo 最后需要删除zsh操作记录
     && rm -f /root/.zsh_history.new
-
-WORKDIR /www
