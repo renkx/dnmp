@@ -36,7 +36,7 @@ services:
         ipv4_address: ${NGINX_IPV4}
 
   php:
-    image: registry.cn-beijing.aliyuncs.com/renkx/php:dnmp-php7
+    image: registry.cn-beijing.aliyuncs.com/renkx/php:dnmp-php7-001
     container_name: php
     hostname: php
     working_dir: /www
@@ -175,7 +175,7 @@ services:
       - default
 
   supervisor:
-    image: registry.cn-beijing.aliyuncs.com/renkx/php:dnmp-php7
+    image: registry.cn-beijing.aliyuncs.com/renkx/php:dnmp-php7-001
     container_name: supervisor
     hostname: supervisor
     working_dir: /etc/supervisor/conf.d
