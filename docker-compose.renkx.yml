@@ -129,7 +129,8 @@ services:
     hostname: frpc
     restart: always
     volumes:
-      - ${FRPC_CONF_FILE}:/frpc.ini
+      - ${FRPC_CONF_DIR}/frpc.ini:/frpc.ini
+      - ${FRPC_CONF_DIR}/conf:/conf
     command: /frp/frpc -c /frpc.ini
     networks:
       - default
