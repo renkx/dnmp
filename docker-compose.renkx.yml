@@ -45,8 +45,9 @@ services:
       - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini:ro
       - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf:rw
       - ${PHP_LOG_DIR}:/var/log/php
-      - ${DATA_DIR}/composer:/tmp/composer
+      - ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
       - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
+      - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
       - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig:rw
       - ${ROOT_SSH_DIR}:/root/.ssh:rw
       - ${ROOT_OH_MY_ZSH}:/root/.oh-my-zsh
@@ -73,8 +74,9 @@ services:
   #      - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini:ro
   #      - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf:rw
   #      - ${PHP_LOG_DIR}:/var/log/php
-  #      - ${DATA_DIR}/composer:/tmp/composer
+  #      - ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
   #      - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
+  #      - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
   #      - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig:rw
   #      - ${ROOT_SSH_DIR}:/root/.ssh:rw
   #      - ${ROOT_OH_MY_ZSH}:/root/.oh-my-zsh
