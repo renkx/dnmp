@@ -21,13 +21,13 @@ services:
       - "${NGINX_HTTP_HOST_PORT}:80"
       - "${NGINX_HTTPS_HOST_PORT}:443"
     volumes:
-      - ${SOURCE_DIR}:/www/:rw
-      - ${NGINX_SSL_CERTIFICATE_DIR}:/ssl:rw
-      - ${NGINX_CONFD_DIR}:/etc/nginx/conf.d/:rw
-      - ${NGINX_CONF_FILE}:/etc/nginx/nginx.conf:ro
-      - ${NGINX_FASTCGI_PHP_CONF}:/etc/nginx/fastcgi-php.conf:ro
-      - ${NGINX_FASTCGI_PARAMS}:/etc/nginx/fastcgi_params:ro
-      - ${NGINX_LOG_DIR}:/var/log/nginx/:rw
+      - ${SOURCE_DIR}:/www/:cached
+      - ${NGINX_SSL_CERTIFICATE_DIR}:/ssl:cached
+      - ${NGINX_CONFD_DIR}:/etc/nginx/conf.d/:cached
+      - ${NGINX_CONF_FILE}:/etc/nginx/nginx.conf:cached
+      - ${NGINX_FASTCGI_PHP_CONF}:/etc/nginx/fastcgi-php.conf:cached
+      - ${NGINX_FASTCGI_PARAMS}:/etc/nginx/fastcgi_params:cached
+      - ${NGINX_LOG_DIR}:/var/log/nginx/:cached
     environment:
       TZ: "$TZ"
     restart: always
@@ -36,22 +36,20 @@ services:
         ipv4_address: ${NGINX_IPV4}
 
   php:
-    image: registry.cn-beijing.aliyuncs.com/renkx/php:dnmp-php7-002
+    image: registry.cn-beijing.aliyuncs.com/renkx/php:dnmp-php7-005
     container_name: php
     hostname: php
     working_dir: /www
     volumes:
-      - ${SOURCE_DIR}:/www/:rw
-      - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini:ro
-      - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf:rw
-      - ${PHP_LOG_DIR}:/var/log/php
-      - ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
-      - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
-      - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
-      - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig:rw
-      - ${ROOT_SSH_DIR}:/root/.ssh:rw
-      - ${ROOT_OH_MY_ZSH}:/root/.oh-my-zsh
-      - ${ROOT_ZSHRC_FILE}:/root/.zshrc
+      - ${SOURCE_DIR}:/www/:cached
+      - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini:cached
+      - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf:cached
+      - ${PHP_LOG_DIR}:/var/log/php:cached
+      - ${COMPOSER_CACHE_DIR}:/tmp/composer/cache:cached
+      - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json:cached
+      - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json:cached
+      - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig:cached
+      - ${ROOT_SSH_DIR}:/root/.ssh:cached
     restart: always
     cap_add:
       - SYS_PTRACE
@@ -70,17 +68,15 @@ services:
   #    container_name: php
   #    hostname: php
   #    volumes:
-  #      - ${SOURCE_DIR}:/www/:rw
-  #      - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini:ro
-  #      - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf:rw
-  #      - ${PHP_LOG_DIR}:/var/log/php
-  #      - ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
-  #      - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
-  #      - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
-  #      - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig:rw
-  #      - ${ROOT_SSH_DIR}:/root/.ssh:rw
-  #      - ${ROOT_OH_MY_ZSH}:/root/.oh-my-zsh
-  #      - ${ROOT_ZSHRC_FILE}:/root/.zshrc
+  #      - ${SOURCE_DIR}:/www/:cached
+  #      - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini:cached
+  #      - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf:cached
+  #      - ${PHP_LOG_DIR}:/var/log/php:cached
+  #      - ${COMPOSER_CACHE_DIR}:/tmp/composer/cache:cached
+  #      - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json:cached
+  #      - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json:cached
+  #      - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig:cached
+  #      - ${ROOT_SSH_DIR}:/root/.ssh:cached
   #    restart: always
   #    cap_add:
   #      - SYS_PTRACE
@@ -96,8 +92,8 @@ services:
     ports:
       - "${MYSQL_HOST_PORT}:3306"
     volumes:
-      - ${MYSQL_CONF_FILE}:/etc/mysql/conf.d/mysql.cnf:ro
-      - ${DATA_DIR}/mysql8:/var/lib/mysql/:rw
+      - ${MYSQL_CONF_FILE}:/etc/mysql/conf.d/mysql.cnf:cached
+      - ${DATA_DIR}/mysql8:/var/lib/mysql/:cached
     restart: always
     networks:
       - default
@@ -114,7 +110,7 @@ services:
     ports:
       - "${REDIS_HOST_PORT}:6379"
     volumes:
-      - ${REDIS_CONF_FILE}:/etc/redis.conf:ro
+      - ${REDIS_CONF_FILE}:/etc/redis.conf:cached
       # vagrant报错情况：不开持久化，挂载data目录 docker整体崩溃
       #- ${DATA_DIR}/redis:/data/:rw
     restart: always
@@ -131,8 +127,8 @@ services:
     hostname: frpc
     restart: always
     volumes:
-      - ${FRPC_CONF_DIR}/frpc.ini:/frpc.ini
-      - ${FRPC_CONF_DIR}/conf:/conf
+      - ${FRPC_CONF_DIR}/frpc.ini:/frpc.ini:cached
+      - ${FRPC_CONF_DIR}/conf:/conf:cached
     command: /frp/frpc -c /frpc.ini
     networks:
       - default
@@ -145,7 +141,7 @@ services:
     tty: true
     stdin_open: true
     volumes:
-      - ${BBWWS_CONF_JSON}:/app/laravel-echo-server.json:ro
+      - ${BBWWS_CONF_JSON}:/app/laravel-echo-server.json:cached
     extra_hosts:
       - "${DOMAIN_BBWAPI}:${NGINX_IPV4}"
     healthcheck:
@@ -165,7 +161,7 @@ services:
     tty: true
     stdin_open: true
     volumes:
-      - ${BBWTDTWS_CONF_JSON}:/app/laravel-echo-server.json:ro
+      - ${BBWTDTWS_CONF_JSON}:/app/laravel-echo-server.json:cached
     extra_hosts:
       - "${DOMAIN_BBWAPI}:${NGINX_IPV4}"
     healthcheck:
@@ -178,19 +174,19 @@ services:
       - default
 
   supervisor:
-    image: registry.cn-beijing.aliyuncs.com/renkx/php:dnmp-php7-002
+    image: registry.cn-beijing.aliyuncs.com/renkx/php:dnmp-php7-005
     container_name: supervisor
     hostname: supervisor
     working_dir: /etc/supervisor/conf.d
     volumes:
-      - ${SOURCE_DIR}:/www/:rw
-      - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini:ro
-      - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf:rw
-      - ${SUPERVISOR_PHP_LOG_DIR}:/var/log/php
-      - ${SUPERVISOR_LOG}:/var/log/supervisor/:rw
-      - ${SUPERVISOR_CONFIG}:/etc/supervisor/conf.d/:rw
-      - ${SUPERVISOR_CONF_FILE}:/etc/supervisor/supervisord.conf:ro
-      - ${SUPERVISOR_CRONTAB_ROOT_FILE}:/etc/crontabs/root
+      - ${SOURCE_DIR}:/www/:cached
+      - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini:cached
+      - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf:cached
+      - ${SUPERVISOR_PHP_LOG_DIR}:/var/log/php:cached
+      - ${SUPERVISOR_LOG}:/var/log/supervisor/:cached
+      - ${SUPERVISOR_CONFIG}:/etc/supervisor/conf.d/:cached
+      - ${SUPERVISOR_CONF_FILE}:/etc/supervisor/supervisord.conf:cached
+      - ${SUPERVISOR_CRONTAB_ROOT_FILE}:/etc/crontabs/root:cached
     restart: always
     cap_add:
       - SYS_PTRACE
@@ -233,10 +229,10 @@ services:
     tty: true
     stdin_open: true
     volumes:
-      - ${SOURCE_DIR}:/www/:rw
-      - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig:rw
-      - ${ROOT_SSH_DIR}:/root/.ssh:rw
-      - ${ROOT_OH_MY_ZSH}:/root/.oh-my-zsh
-      - ${ROOT_ZSHRC_FILE}:/root/.zshrc
+      - ${SOURCE_DIR}:/www/:cached
+      - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig:cached
+      - ${ROOT_SSH_DIR}:/root/.ssh:cached
+      - ${ROOT_OH_MY_ZSH}:/root/.oh-my-zsh:cached
+      - ${ROOT_ZSHRC_FILE}:/root/.zshrc:cached
     networks:
       - default
