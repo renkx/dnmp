@@ -43,7 +43,7 @@ ADD ./renkxservices/extra  /root/extra
 # todo 安装zsh和git、supervisor等
 RUN apk update \
 	&& apk upgrade \
-	&& apk --no-cache add zsh git supervisor openssh vim \
+	&& apk --no-cache add zsh git supervisor openssh vim ffmpeg \
     && mv /root/extra/oh-my-zsh /root/.oh-my-zsh \
     && mv /root/extra/zshrc /root/.zshrc \
 	&& rm -rf /var/cache/apk/* /root/extra \
