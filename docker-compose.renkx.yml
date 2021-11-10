@@ -36,7 +36,7 @@ services:
         ipv4_address: ${NGINX_IPV4}
 
   php:
-    image: registry.cn-beijing.aliyuncs.com/renkx/php:dnmp-php7-005
+    image: registry.cn-beijing.aliyuncs.com/renkx/php:${PHP_DNMP_IMAGE}
     container_name: php
     hostname: php
     working_dir: /www
@@ -82,6 +82,23 @@ services:
   #      - SYS_PTRACE
   #    networks:
   #     - default
+
+  crontab:
+    image: registry.cn-beijing.aliyuncs.com/renkx/php:${PHP_DNMP_IMAGE}
+    container_name: crontab
+    hostname: crontab
+    volumes:
+      - ${SOURCE_DIR}:/www/:cached
+      - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini:cached
+      - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf:cached
+      - ${CRONTAB_PHP_LOG_DIR}:/var/log/php:cached
+      - ${CRONTAB_ROOT_FILE}:/etc/crontabs/root:cached
+    restart: always
+    cap_add:
+      - SYS_PTRACE
+    command: ["/usr/sbin/crond", "-f"]
+    networks:
+      - default
 
   mysql:
     image: mysql:${MYSQL_VERSION}
@@ -174,7 +191,7 @@ services:
       - default
 
   supervisor:
-    image: registry.cn-beijing.aliyuncs.com/renkx/php:dnmp-php7-005
+    image: registry.cn-beijing.aliyuncs.com/renkx/php:${PHP_DNMP_IMAGE}
     container_name: supervisor
     hostname: supervisor
     working_dir: /etc/supervisor/conf.d
@@ -186,7 +203,6 @@ services:
       - ${SUPERVISOR_LOG}:/var/log/supervisor/:cached
       - ${SUPERVISOR_CONFIG}:/etc/supervisor/conf.d/:cached
       - ${SUPERVISOR_CONF_FILE}:/etc/supervisor/supervisord.conf:cached
-      - ${SUPERVISOR_CRONTAB_ROOT_FILE}:/etc/crontabs/root:cached
     restart: always
     cap_add:
       - SYS_PTRACE
