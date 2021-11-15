@@ -2,6 +2,7 @@
 alias dphp='docker exec -it php zsh'
 alias dphpbbw='docker exec -it -w=/www/bbw/bbw-api php zsh'
 alias dphpbb='docker exec -it -w=/www/hc/baobao-api php zsh'
+alias dphpjdjsj='docker exec -it -w=/www/jdjsj/jdjsj-api php zsh'
 
 # ssh alias
 alias csc='cat ~/.ssh/config'

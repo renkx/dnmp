@@ -87,6 +87,7 @@ services:
     image: registry.cn-beijing.aliyuncs.com/renkx/php:${PHP_DNMP_IMAGE}
     container_name: crontab
     hostname: crontab
+    working_dir: /www
     volumes:
       - ${SOURCE_DIR}:/www/:cached
       - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini:cached
