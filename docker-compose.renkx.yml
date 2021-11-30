@@ -214,7 +214,7 @@ services:
     tty: true
     stdin_open: true
     volumes:
-      - ${BBWWS_CONF_JSON}:/app/laravel-echo-server.json:cached
+      - ${JDJSJWS_CONF_JSON}:/app/laravel-echo-server.json:cached
     extra_hosts:
       - "${DOMAIN_JDJSJAPI}:${NGINX_IPV4}"
     healthcheck:
