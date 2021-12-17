@@ -91,6 +91,7 @@ services:
     working_dir: /www
     volumes:
       - ${SOURCE_DIR}:/www/:cached
+      - ${SYS_DIR}:/renkxsys/:cached
       - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini:cached
       - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf:cached
       - ${CRONTAB_PHP_LOG_DIR}:/var/log/php:cached
@@ -234,6 +235,7 @@ services:
     working_dir: /etc/supervisor/conf.d
     volumes:
       - ${SOURCE_DIR}:/www/:cached
+      - ${SYS_DIR}:/renkxsys/:cached
       - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini:cached
       - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf:cached
       - ${SUPERVISOR_PHP_LOG_DIR}:/var/log/php:cached
