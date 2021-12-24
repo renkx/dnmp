@@ -51,6 +51,8 @@ services:
       - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json:cached
       - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig:cached
       - ${ROOT_SSH_DIR}:/root/.ssh:cached
+    extra_hosts:
+      - "${DOMAIN_JDJSJAPI}:${NGINX_IPV4}"
     restart: always
     cap_add:
       - SYS_PTRACE
