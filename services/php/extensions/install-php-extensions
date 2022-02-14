@@ -403,6 +403,12 @@ sortModulesToInstall() {
 		PHP_MODULES_TO_INSTALL="socket $PHP_MODULES_TO_INSTALL"
 		PHP_MODULES_TO_INSTALL="${PHP_MODULES_TO_INSTALL% }"
 	fi
+	# Some module installation may use apcu if available: move it before other modules
+	if stringInList 'apcu' "$PHP_MODULES_TO_INSTALL"; then
+		PHP_MODULES_TO_INSTALL="$(removeStringFromList 'apcu' "$PHP_MODULES_TO_INSTALL")"
+		PHP_MODULES_TO_INSTALL="apcu $PHP_MODULES_TO_INSTALL"
+		PHP_MODULES_TO_INSTALL="${PHP_MODULES_TO_INSTALL% }"
+	fi
 	# In any case, first of all, we need to install composer
 	if stringInList '@composer' "$PHP_MODULES_TO_INSTALL"; then
 		PHP_MODULES_TO_INSTALL="$(removeStringFromList '@composer' "$PHP_MODULES_TO_INSTALL")"
@@ -710,6 +716,9 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile openldap-dev"
 				;;
 			ldap@debian)
+				if test $DISTRO_VERSION_NUMBER -ge 9; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libldap-common"
+				fi
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libldap2-dev"
 				;;
 			maxminddb@alpine)
@@ -801,6 +810,14 @@ buildRequiredPackageLists() {
 			odbc@debian | pdo_odbc@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
+				;;
+			openswoole@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent postgresql-libs libstdc++ $buildRequiredPackageLists_libssl"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile curl-dev postgresql-dev linux-headers $buildRequiredPackageLists_libssldev"
+				;;
+			openswoole@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libcurl3-gnutls libpq5"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev libcurl4-gnutls-dev libpq-dev"
 				;;
 			pdo_dblib@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetds"
@@ -989,7 +1006,11 @@ buildRequiredPackageLists() {
 				fi
 				;;
 			tidy@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent tidyhtml-libs"
+				if test $DISTRO_MAJMIN_VERSION -ge 315; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent tidyhtml"
+				else
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent tidyhtml-libs"
+				fi
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile tidyhtml-dev"
 				;;
 			tidy@debian)
@@ -1394,10 +1415,20 @@ installOracleInstantClient() {
 			installOracleInstantClient_sdk=https://download.oracle.com/otn_software/linux/instantclient/199000/instantclient-sdk-linux-$installOracleInstantClient_version.0.0.0dbru.zip
 			;;
 		*)
-			installOracleInstantClient_client=client64
-			installOracleInstantClient_version='21.1'
-			installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-basic-linux.x64-$installOracleInstantClient_version.0.0.0.zip
-			installOracleInstantClient_sdk=https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-sdk-linux.x64-$installOracleInstantClient_version.0.0.0.zip
+			case $(uname -m) in
+				aarch64*)
+					installOracleInstantClient_client=client64
+					installOracleInstantClient_version='19.10'
+					installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/191000/instantclient-basic-linux.arm64-$installOracleInstantClient_version.0.0.0dbru.zip
+					installOracleInstantClient_sdk=https://download.oracle.com/otn_software/linux/instantclient/191000/instantclient-sdk-linux.arm64-$installOracleInstantClient_version.0.0.0dbru.zip
+					;;
+				*)
+					installOracleInstantClient_client=client64
+					installOracleInstantClient_version='21.1'
+					installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-basic-linux.x64-$installOracleInstantClient_version.0.0.0.zip
+					installOracleInstantClient_sdk=https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-sdk-linux.x64-$installOracleInstantClient_version.0.0.0.zip
+					;;
+			esac
 			;;
 	esac
 	ORACLE_INSTANTCLIENT_LIBPATH=/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib
@@ -1741,7 +1772,7 @@ installBundledModule() {
 +  PHP_DBA_DB_CHECK(4, db-5.3 db-5.1 db-5.0 db-4.8 db-4.7 db-4.6 db-4.5 db-4.4 db-4.3 db-4.2 db-4.1 db-4.0 db-4 db4 db, [(void)db_create((DB**)0, (DB_ENV*)0, 0)])
  fi
  PHP_DBA_STD_RESULT(db4,Berkeley DB4)
-
+ 
 EOF
 			fi
 			docker-php-ext-configure dba --with-db4
@@ -1885,6 +1916,15 @@ EOF
 					;;
 			esac
 			;;
+		sockets)
+			case "$PHP_MAJDOTMINDOTPAT_VERSION" in
+				8.0.15 | 8.1.2)
+					sed -i '70 i #ifndef _GNU_SOURCE' /usr/src/php/ext/sockets/config.m4
+					sed -i '71 i #define _GNU_SOURCE' /usr/src/php/ext/sockets/config.m4
+					sed -i '72 i #endif' /usr/src/php/ext/sockets/config.m4
+					;;
+			esac
+			;;
 		sybase_ct)
 			docker-php-ext-configure sybase_ct --with-sybase-ct=/usr
 			;;
@@ -1971,9 +2011,7 @@ installRemoteModule() {
 	case "$installRemoteModule_module" in
 		amqp)
 			if test -z "$installRemoteModule_version"; then
-				if test $PHP_MAJMIN_VERSION -ge 800; then
-					installRemoteModule_version=beta
-				elif test "$DISTRO_VERSION" = debian@8; then
+				if test "$DISTRO_VERSION" = debian@8; then
 					# in Debian Jessie we have librabbitmq version 0.5.2
 					installRemoteModule_version=1.9.3
 				elif test $PHP_MAJMIN_VERSION -le 505; then
@@ -2064,6 +2102,13 @@ installRemoteModule() {
 					fi
 					;;
 			esac
+			;;
+		ds)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 702; then
+					installRemoteModule_version=1.3.0
+				fi
+			fi
 			;;
 		event)
 			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 2.4.0) -ge 0; then
@@ -2225,6 +2270,11 @@ installRemoteModule() {
 			fi
 			;;
 		lzf)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 702; then
+					installRemoteModule_version=1.6.8
+				fi
+			fi
 			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '1.5.0') -ge 0; then
 				# Sacrifice speed in favour of compression ratio?
 				case "${IPE_LZF_BETTERCOMPRESSION:-}" in
@@ -2302,6 +2352,8 @@ installRemoteModule() {
 					installRemoteModule_version=1.7.5
 				elif test $PHP_MAJMIN_VERSION -le 700; then
 					installRemoteModule_version=1.9.2
+				elif test $PHP_MAJMIN_VERSION -le 701; then
+					installRemoteModule_version=1.11.1
 				fi
 			fi
 			;;
@@ -2327,6 +2379,30 @@ installRemoteModule() {
 		opencensus)
 			if test -z "$installRemoteModule_version"; then
 				installRemoteModule_version=alpha
+			fi
+			;;
+		openswoole)
+			if php --ri sockets >/dev/null 2>/dev/null; then
+				installRemoteModule_sockets=yes
+			else
+				installRemoteModule_sockets=no
+			fi
+			installRemoteModule_openssl=yes
+			# enable sockets supports?
+			addConfigureOption enable-sockets $installRemoteModule_sockets
+			# enable openssl support?
+			addConfigureOption enable-openssl $installRemoteModule_openssl
+			# enable http2 support?
+			addConfigureOption enable-http2 yes
+			# enable mysqlnd support?
+			addConfigureOption enable-mysqlnd yes
+			# enable json support?
+			addConfigureOption enable-swoole-json yes
+			# enable curl support?
+			addConfigureOption enable-swoole-curl yes
+			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '4.8.0') -ge 0; then
+				# enable postgres support?
+				addConfigureOption with-postgres yes
 			fi
 			;;
 		parallel)
@@ -2386,6 +2462,9 @@ installRemoteModule() {
 						;;
 					debian)
 						installRemoteModule_tmp='librdkafka*'
+						;;
+					*)
+						installRemoteModule_tmp=''
 						;;
 				esac
 				if test -n "$installRemoteModule_tmp"; then
@@ -2490,20 +2569,8 @@ installRemoteModule() {
 					installRemoteModule_version=5.6.1
 				elif test $PHP_MAJMIN_VERSION -le 702; then
 					installRemoteModule_version=5.8.1
-				elif test $PHP_MAJMIN_VERSION -ge 801; then
-					# https://github.com/microsoft/msphpsql/commits/PHP-8.1-dev
-					installRemoteModule_src="$(getPackageSource https://codeload.github.com/microsoft/msphpsql/tar.gz/f00dc9f0c555eebaf9f1e5a9bd1a04044908bba1)"
-					cd -- "$installRemoteModule_src/source/$installRemoteModule_module"
-					if command -v bash >/dev/null; then
-						(cd .. && bash ./packagize.sh)
-					else
-						(cd .. && sh ./packagize.sh)
-					fi
-					phpize
-					./configure
-					make -j$(getProcessorCount) install
-					cd - >/dev/null
-					installRemoteModule_manuallyInstalled=1
+				elif test $PHP_MAJMIN_VERSION -le 703; then
+					installRemoteModule_version=5.9.0
 				fi
 			fi
 			;;
@@ -2568,7 +2635,7 @@ installRemoteModule() {
 				# enable json support?
 				addConfigureOption enable-swoole-json yes
 				# enable curl support?
-				if test $PHP_MAJMINPAT_VERSION -ne 80000; then
+				if test $PHP_MAJMINPAT_VERSION -ne 80000 || test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 4.6.1) -ge 0; then
 					addConfigureOption enable-swoole-curl yes
 				else
 					# https://github.com/swoole/swoole-src/issues/3977#issuecomment-754755521
