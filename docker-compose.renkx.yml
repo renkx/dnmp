@@ -160,6 +160,9 @@ services:
   frpc:
     build:
       context: ./renkxservices/frp
+      args:
+        FRP_VERSION: "${FRP_VERSION}"
+        TZ: "$TZ"
     container_name: frpc
     hostname: frpc
     restart: always
