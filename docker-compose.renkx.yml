@@ -59,6 +59,30 @@ services:
     networks:
       - default
 
+  php8:
+    image: registry.cn-beijing.aliyuncs.com/renkx/php:php8-1.0
+    container_name: php8
+    hostname: php8
+    working_dir: /www
+    volumes:
+      - ${SOURCE_DIR}:/www/
+      - ${SYS_DIR}:/renkxsys/
+      - ${PHP8_PHP_CONF_FILE}:/usr/local/etc/php/php.ini
+      - ${PHP8_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
+      - ${PHP8_LOG_DIR}:/var/log/php
+      - ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
+      - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
+      - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
+      - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig
+      - ${ROOT_SSH_DIR}:/root/.ssh
+    extra_hosts:
+      - "${DOMAIN_JDJSJAPI}:${NGINX_IPV4}"
+    restart: always
+    cap_add:
+      - SYS_PTRACE
+    networks:
+      - default
+
   #  php:
   #    build:
   #      context: .
