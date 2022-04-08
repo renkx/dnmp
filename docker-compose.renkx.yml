@@ -60,7 +60,9 @@ services:
       - default
 
   php8:
-    image: registry.cn-beijing.aliyuncs.com/renkx/php:php8-1.0
+    build:
+      context: .
+      dockerfile: ./renkxservices/php8/Dockerfile
     container_name: php8
     hostname: php8
     working_dir: /www
