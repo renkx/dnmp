@@ -304,6 +304,26 @@ services:
     networks:
       - default
 
+  yundingws:
+    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
+    container_name: yundingws
+    hostname: yundingws
+    restart: always
+    tty: true
+    stdin_open: true
+    volumes:
+      - ${YUNDINGWS_CONF_JSON}:/app/laravel-echo-server.json
+    extra_hosts:
+      - "${DOMAIN_YUNDINGAPI}:${NGINX_IPV4}"
+    healthcheck:
+      test: /usr/local/bin/health-check
+      start_period: 5s
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    networks:
+      - default
+
   supervisor:
     image: registry.cn-beijing.aliyuncs.com/renkx/php:${PHP_DNMP_IMAGE}
     container_name: supervisor
