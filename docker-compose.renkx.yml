@@ -6,6 +6,11 @@ networks:
       config:
         - subnet: ${DEFAULT_SUBNET}
 
+volumes:
+  mongodb:
+    # 如果设置为true，则指定此卷已在Compose之外创建。docker-compose up不会尝试创建它，如果不存在则会引发错误。
+    external: true
+
 services:
   nginx:
     build:
@@ -72,7 +77,7 @@ services:
       - ${PHP8_PHP_CONF_FILE}:/usr/local/etc/php/php.ini
       - ${PHP8_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
       - ${PHP8_LOG_DIR}:/var/log/php
-      - ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
+      #- ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
       - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
       - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
       - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig
@@ -127,7 +132,27 @@ services:
     restart: always
     cap_add:
       - SYS_PTRACE
-    command: ["/usr/sbin/crond", "-f"]
+    command: ["/usr/sbin/crond", "-f", "-d", "8"]
+    networks:
+      - default
+
+  crontab8:
+    build:
+      context: .
+      dockerfile: ./renkxservices/crontab8/Dockerfile
+    container_name: crontab8
+    hostname: crontab8
+    working_dir: /www
+    volumes:
+      - ${SOURCE_DIR}:/www/
+      - ${SYS_DIR}:/renkxsys/
+      - ${PHP8_PHP_CONF_FILE}:/usr/local/etc/php/php.ini
+      - ${PHP8_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
+      - ${CRONTAB8_PHP_LOG_DIR}:/var/log/php
+      - ${CRONTAB8_ROOT_FILE}:/etc/crontabs/root
+    restart: always
+    cap_add:
+      - SYS_PTRACE
     networks:
       - default
 
@@ -176,7 +201,7 @@ services:
     ports:
       - "${MONGO_PORT}:27017"
     volumes:
-      - ${DATA_DIR}/mongodb:/data/db/
+      - mongodb:/data/db/
     environment:
       MONGO_INITDB_ROOT_USERNAME: "${MONGO_USER}"
       MONGO_INITDB_ROOT_PASSWORD: "${MONGO_PASS}"
@@ -259,6 +284,26 @@ services:
     networks:
       - default
 
+  akitadows:
+    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
+    container_name: akitadows
+    hostname: akitadows
+    restart: always
+    tty: true
+    stdin_open: true
+    volumes:
+      - ${AKITADOWS_CONF_JSON}:/app/laravel-echo-server.json
+    extra_hosts:
+      - "${DOMAIN_AKITADOAPI}:${NGINX_IPV4}"
+    healthcheck:
+      test: /usr/local/bin/health-check
+      start_period: 5s
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    networks:
+      - default
+
   supervisor:
     image: registry.cn-beijing.aliyuncs.com/renkx/php:${PHP_DNMP_IMAGE}
     container_name: supervisor
@@ -273,6 +318,29 @@ services:
       - ${SUPERVISOR_LOG}:/var/log/supervisor/
       - ${SUPERVISOR_CONFIG}:/etc/supervisor/conf.d/
       - ${SUPERVISOR_CONF_FILE}:/etc/supervisor/supervisord.conf
+    restart: always
+    cap_add:
+      - SYS_PTRACE
+    command: ["supervisord", "--nodaemon", "--configuration", "/etc/supervisor/supervisord.conf"]
+    networks:
+      - default
+
+  supervisor8:
+    build:
+      context: .
+      dockerfile: ./renkxservices/supervisor8/Dockerfile
+    container_name: supervisor8
+    hostname: supervisor8
+    working_dir: /etc/supervisor/conf.d
+    volumes:
+      - ${SOURCE_DIR}:/www/
+      - ${SYS_DIR}:/renkxsys/
+      - ${PHP8_PHP_CONF_FILE}:/usr/local/etc/php/php.ini
+      - ${PHP8_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
+      - ${SUPERVISOR8_PHP_LOG_DIR}:/var/log/php
+      - ${SUPERVISOR8_LOG}:/var/log/supervisor/
+      - ${SUPERVISOR8_CONFIG}:/etc/supervisor/conf.d/
+      - ${SUPERVISOR8_CONF_FILE}:/etc/supervisor/supervisord.conf
     restart: always
     cap_add:
       - SYS_PTRACE
