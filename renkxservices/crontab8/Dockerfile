@@ -1,11 +1,16 @@
 # webapp 生成的 基础镜像
 FROM registry.cn-beijing.aliyuncs.com/kdd/php:php8-1.0
 
+# Install composer and change it's cache home
+RUN curl -o /usr/bin/composer https://mirrors.aliyun.com/composer/composer.phar \
+    && chmod +x /usr/bin/composer
+ENV COMPOSER_HOME=/tmp/composer
+
 # todo 设置扩展数据
 ADD ./renkxservices/extra  /root/extra
 
-# todo 安装 zsh 和 supervisor 等
-RUN apk --no-cache add zsh vim \
+# todo 安装 zsh 和 git 等
+RUN apk --no-cache add zsh git openssh vim \
     && mv /root/extra/oh-my-zsh /root/.oh-my-zsh \
     && mv /root/extra/zshrc /root/.zshrc \
 	&& rm -rf /var/cache/apk/* /root/extra \

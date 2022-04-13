@@ -87,6 +87,7 @@ services:
     restart: always
     cap_add:
       - SYS_PTRACE
+    command: su -m www-data -c '/usr/local/bin/php /www/yunding/yunding-api/artisan octane:start --host=0.0.0.0 --port=9000'
     networks:
       - default
 
@@ -150,6 +151,11 @@ services:
       - ${PHP8_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
       - ${CRONTAB8_PHP_LOG_DIR}:/var/log/php
       - ${CRONTAB8_ROOT_FILE}:/etc/crontabs/root
+      #- ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
+      - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
+      - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
+      - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig
+      - ${ROOT_SSH_DIR}:/root/.ssh
     restart: always
     cap_add:
       - SYS_PTRACE
@@ -361,6 +367,11 @@ services:
       - ${SUPERVISOR8_LOG}:/var/log/supervisor/
       - ${SUPERVISOR8_CONFIG}:/etc/supervisor/conf.d/
       - ${SUPERVISOR8_CONF_FILE}:/etc/supervisor/supervisord.conf
+      #- ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
+      - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
+      - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
+      - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig
+      - ${ROOT_SSH_DIR}:/root/.ssh
     restart: always
     cap_add:
       - SYS_PTRACE
