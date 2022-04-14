@@ -87,7 +87,7 @@ services:
     restart: always
     cap_add:
       - SYS_PTRACE
-    command: su -m www-data -c '/usr/local/bin/php /www/yunding/yunding-api/artisan octane:start --host=0.0.0.0 --port=9000'
+    command: "${PHP8_COMMAND}"
     networks:
       - default
 
