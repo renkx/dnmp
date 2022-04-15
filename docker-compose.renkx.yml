@@ -151,6 +151,8 @@ services:
       - ${PHP8_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
       - ${CRONTAB8_PHP_LOG_DIR}:/var/log/php
       - ${CRONTAB8_ROOT_FILE}:/etc/crontabs/root
+      - ./renkxservices/crontab8/crontab.ini:/etc/supervisor/conf.d/crontab.ini
+      - ./renkxservices/crontab8/supervisord.conf:/etc/supervisor/supervisord.conf
       #- ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
       - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
       - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
