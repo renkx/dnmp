@@ -9,20 +9,15 @@ ENV COMPOSER_HOME=/tmp/composer
 # todo 设置扩展数据
 ADD ./renkxservices/extra  /root/extra
 
-# todo 安装 zsh 和 supervisor 等
-RUN apk --no-cache add zsh git openssh vim supervisor
+# todo 安装 zsh 和 git 等
+RUN apk --no-cache add zsh git openssh vim
 
-RUN git clone https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh
+RUN git clone https://gitee.com/renkx/ohmyzsh.git /root/.oh-my-zsh
 
 RUN mv /root/extra/zshrc /root/.zshrc \
 	&& rm -rf /var/cache/apk/* /root/extra \
     # todo 最后需要删除zsh操作记录
     && rm -f /root/.zsh_history.new
 
-# todo 设置挂载
-VOLUME ["/etc/supervisor/conf.d", "/var/log/supervisor/"]
-
 # todo 工作目录
-WORKDIR /etc/supervisor/conf.d
-
-CMD ["supervisord", "--nodaemon", "--configuration", "/etc/supervisor/supervisord.conf"]
+WORKDIR /www/wwwroot

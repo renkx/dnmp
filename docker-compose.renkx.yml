@@ -64,30 +64,100 @@ services:
     networks:
       - default
 
-  php8:
+  yd_api:
     build:
       context: .
-      dockerfile: ./renkxservices/php8/Dockerfile
-    container_name: php8
-    hostname: php8
-    working_dir: /www
+      dockerfile: ./renkxservices/yd_api/Dockerfile
+    container_name: yd_api
+    hostname: yd_api
+    working_dir: /www/wwwroot
     volumes:
-      - ${SOURCE_DIR}:/www/
+      - ${YD_API_WWWROOT_DIR}:/www/wwwroot/
       - ${SYS_DIR}:/renkxsys/
-      - ${PHP8_PHP_CONF_FILE}:/usr/local/etc/php/php.ini
-      - ${PHP8_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
-      - ${PHP8_LOG_DIR}:/var/log/php
-      #- ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
+      - ${YD_API_PHP_CONF_FILE}:/usr/local/etc/php/php.ini
+      - ${YD_API_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
+      - ${YD_API_LOG_DIR}:/var/log/php
+      - ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
       - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
       - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
       - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig
       - ${ROOT_SSH_DIR}:/root/.ssh
-    extra_hosts:
-      - "${DOMAIN_JDJSJAPI}:${NGINX_IPV4}"
     restart: always
     cap_add:
       - SYS_PTRACE
     command: "${PHP8_COMMAND}"
+    networks:
+      - default
+
+  yd_crontab:
+    build:
+      context: .
+      dockerfile: ./renkxservices/yd_crontab/Dockerfile
+    container_name: yd_crontab
+    hostname: yd_crontab
+    working_dir: /www/wwwroot
+    volumes:
+      - ${YD_API_WWWROOT_DIR}:/www/wwwroot/
+      - ${SYS_DIR}:/renkxsys/
+      - ${YD_API_PHP_CONF_FILE}:/usr/local/etc/php/php.ini
+      - ${YD_API_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
+      - ${YD_CRONTAB_PHP_LOG_DIR}:/var/log/php
+      - ${YD_CRONTAB_ROOT_FILE}:/etc/crontabs/root
+      - ./renkxservices/yd_crontab/crontab.ini:/etc/supervisor/conf.d/crontab.ini
+      - ./renkxservices/yd_crontab/supervisord.conf:/etc/supervisor/supervisord.conf
+      - ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
+      - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
+      - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
+      - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig
+      - ${ROOT_SSH_DIR}:/root/.ssh
+    restart: always
+    cap_add:
+      - SYS_PTRACE
+    networks:
+      - default
+
+  yd_horizon:
+    build:
+      context: .
+      dockerfile: ./renkxservices/yd_horizon/Dockerfile
+    container_name: yd_horizon
+    hostname: yd_horizon
+    working_dir: /www/wwwroot
+    volumes:
+      - ${YD_API_WWWROOT_DIR}:/www/wwwroot/
+      - ${SYS_DIR}:/renkxsys/
+      - ${YD_API_PHP_CONF_FILE}:/usr/local/etc/php/php.ini
+      - ${YD_API_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
+      - ${YD_HORIZON_PHP_LOG_DIR}:/var/log/php
+      - ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
+      - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
+      - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
+      - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig
+      - ${ROOT_SSH_DIR}:/root/.ssh
+    restart: always
+    cap_add:
+      - SYS_PTRACE
+    command: su -m www-data -c '/usr/local/bin/php /www/wwwroot/artisan horizon'
+    networks:
+      - default
+
+  yd_ws:
+    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
+    container_name: yd_ws
+    hostname: yd_ws
+    restart: always
+    tty: true
+    stdin_open: true
+    volumes:
+      - ${YD_WS_CONF_JSON}:/app/laravel-echo-server.json
+    extra_hosts:
+      - "${DOMAIN_YD_API}:${NGINX_IPV4}"
+    healthcheck:
+      test: /usr/local/bin/health-check
+      start_period: 5s
+      interval: 3s
+      timeout: 3s
+      retries: 10
     networks:
       - default
 
@@ -134,33 +204,6 @@ services:
     cap_add:
       - SYS_PTRACE
     command: ["/usr/sbin/crond", "-f", "-d", "8"]
-    networks:
-      - default
-
-  crontab8:
-    build:
-      context: .
-      dockerfile: ./renkxservices/crontab8/Dockerfile
-    container_name: crontab8
-    hostname: crontab8
-    working_dir: /www
-    volumes:
-      - ${SOURCE_DIR}:/www/
-      - ${SYS_DIR}:/renkxsys/
-      - ${PHP8_PHP_CONF_FILE}:/usr/local/etc/php/php.ini
-      - ${PHP8_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
-      - ${CRONTAB8_PHP_LOG_DIR}:/var/log/php
-      - ${CRONTAB8_ROOT_FILE}:/etc/crontabs/root
-      - ./renkxservices/crontab8/crontab.ini:/etc/supervisor/conf.d/crontab.ini
-      - ./renkxservices/crontab8/supervisord.conf:/etc/supervisor/supervisord.conf
-      #- ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
-      - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
-      - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
-      - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig
-      - ${ROOT_SSH_DIR}:/root/.ssh
-    restart: always
-    cap_add:
-      - SYS_PTRACE
     networks:
       - default
 
@@ -312,26 +355,6 @@ services:
     networks:
       - default
 
-  yundingws:
-    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
-    container_name: yundingws
-    hostname: yundingws
-    restart: always
-    tty: true
-    stdin_open: true
-    volumes:
-      - ${YUNDINGWS_CONF_JSON}:/app/laravel-echo-server.json
-    extra_hosts:
-      - "${DOMAIN_YUNDINGAPI}:${NGINX_IPV4}"
-    healthcheck:
-      test: /usr/local/bin/health-check
-      start_period: 5s
-      interval: 3s
-      timeout: 3s
-      retries: 10
-    networks:
-      - default
-
   supervisor:
     image: registry.cn-beijing.aliyuncs.com/renkx/php:${PHP_DNMP_IMAGE}
     container_name: supervisor
@@ -346,34 +369,6 @@ services:
       - ${SUPERVISOR_LOG}:/var/log/supervisor/
       - ${SUPERVISOR_CONFIG}:/etc/supervisor/conf.d/
       - ${SUPERVISOR_CONF_FILE}:/etc/supervisor/supervisord.conf
-    restart: always
-    cap_add:
-      - SYS_PTRACE
-    command: ["supervisord", "--nodaemon", "--configuration", "/etc/supervisor/supervisord.conf"]
-    networks:
-      - default
-
-  supervisor8:
-    build:
-      context: .
-      dockerfile: ./renkxservices/supervisor8/Dockerfile
-    container_name: supervisor8
-    hostname: supervisor8
-    working_dir: /etc/supervisor/conf.d
-    volumes:
-      - ${SOURCE_DIR}:/www/
-      - ${SYS_DIR}:/renkxsys/
-      - ${PHP8_PHP_CONF_FILE}:/usr/local/etc/php/php.ini
-      - ${PHP8_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
-      - ${SUPERVISOR8_PHP_LOG_DIR}:/var/log/php
-      - ${SUPERVISOR8_LOG}:/var/log/supervisor/
-      - ${SUPERVISOR8_CONFIG}:/etc/supervisor/conf.d/
-      - ${SUPERVISOR8_CONF_FILE}:/etc/supervisor/supervisord.conf
-      #- ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
-      - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
-      - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
-      - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig
-      - ${ROOT_SSH_DIR}:/root/.ssh
     restart: always
     cap_add:
       - SYS_PTRACE
