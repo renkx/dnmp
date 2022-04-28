@@ -10,7 +10,7 @@ ENV COMPOSER_HOME=/tmp/composer
 ADD ./renkxservices/extra  /home/www-data/extra
 
 # todo 安装 zsh 和 git 等
-RUN apk --no-cache add zsh git openssh vim busybox-suid
+RUN apk --no-cache add zsh git openssh vim busybox-suid supervisor
 
 ################### todo 安装 supercronic
 ENV SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.1.12/supercronic-linux-amd64 \
@@ -34,4 +34,7 @@ RUN mv /home/www-data/extra/zshrc /home/www-data/.zshrc \
 # todo 工作目录
 WORKDIR /www/wwwroot
 
-CMD ["supercronic", "/etc/crontabs/www-data"]
+# todo 设置挂载
+VOLUME ["/etc/supervisor/conf.d", "/var/log/supervisor/"]
+
+CMD ["supervisord", "--nodaemon", "--configuration", "/etc/supervisor/supervisord.conf"]
