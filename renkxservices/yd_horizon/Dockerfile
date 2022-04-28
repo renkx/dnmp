@@ -7,17 +7,17 @@ RUN curl -o /usr/bin/composer https://mirrors.aliyun.com/composer/composer.phar 
 ENV COMPOSER_HOME=/tmp/composer
 
 # todo 设置扩展数据
-ADD ./renkxservices/extra  /root/extra
+ADD ./renkxservices/extra  /home/www-data/extra
 
 # todo 安装 zsh 和 git 等
 RUN apk --no-cache add zsh git openssh vim
 
-RUN git clone https://gitee.com/renkx/ohmyzsh.git /root/.oh-my-zsh
+RUN git clone https://gitee.com/renkx/ohmyzsh.git /home/www-data/.oh-my-zsh
 
-RUN mv /root/extra/zshrc /root/.zshrc \
-	&& rm -rf /var/cache/apk/* /root/extra \
+RUN mv /home/www-data/extra/zshrc /home/www-data/.zshrc \
+	&& rm -rf /var/cache/apk/* /home/www-data/extra \
     # todo 最后需要删除zsh操作记录
-    && rm -f /root/.zsh_history.new
+    && rm -f /home/www-data/.zsh_history.new
 
 # todo 工作目录
 WORKDIR /www/wwwroot
