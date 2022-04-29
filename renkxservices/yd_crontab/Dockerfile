@@ -9,11 +9,8 @@ ENV COMPOSER_HOME=/tmp/composer
 # todo 设置扩展数据
 ADD ./renkxservices/extra  /home/www-data/extra
 
-# todo 安装 zsh 和 git 等
-RUN apk --no-cache add zsh git openssh vim busybox-suid supervisor
-
 ################### todo 安装 supercronic
-ENV SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.1.12/supercronic-linux-amd64 \
+ENV SUPERCRONIC_URL=https://gitee.com/renkx/supercronic/attach_files/1047315/download/supercronic-linux-amd64 \
     SUPERCRONIC=supercronic-linux-amd64 \
     SUPERCRONIC_SHA1SUM=048b95b48b708983effb2e5c935a1ef8483d9e3e
 
@@ -23,6 +20,9 @@ RUN curl -fsSLO "$SUPERCRONIC_URL" \
  && mv "$SUPERCRONIC" "/usr/local/bin/${SUPERCRONIC}" \
  && ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic
 ################### todo 安装 supercronic
+
+# todo 安装 zsh 和 git 等
+RUN apk --no-cache add zsh git openssh vim busybox-suid dumb-init
 
 RUN git clone https://gitee.com/renkx/ohmyzsh.git /home/www-data/.oh-my-zsh
 
@@ -36,7 +36,4 @@ RUN mv /home/www-data/extra/zshrc /home/www-data/.zshrc \
 # todo 工作目录
 WORKDIR /www/wwwroot
 
-# todo 设置挂载
-VOLUME ["/etc/supervisor/conf.d", "/var/log/supervisor/"]
-
-CMD ["supervisord", "--nodaemon", "--configuration", "/etc/supervisor/supervisord.conf"]
+ENTRYPOINT ["dumb-init", "--"]
