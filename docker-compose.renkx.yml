@@ -80,7 +80,7 @@ services:
       - ${YD_API_PHP_CONF_FILE}:/usr/local/etc/php/php.ini
       - ${YD_API_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
       - ${YD_API_LOG_DIR}:/var/log/php
-      - ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
+      #- ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
       - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
       - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
       - ${ROOT_GITCONFIG_FILE}:/home/www-data/.gitconfig
@@ -112,7 +112,7 @@ services:
       - ${YD_CRONTAB_PHP_LOG_DIR}:/var/log/supervisor/
       - ${YD_CRONTAB_SUPERVISOR_INI}:/etc/supervisor/conf.d/crontab.ini
       - ${YD_CRONTAB_SUPERVISOR_CONF_FILE}:/etc/supervisor/supervisord.conf
-      - ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
+      #- ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
       - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
       - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
       - ${ROOT_GITCONFIG_FILE}:/home/www-data/.gitconfig
@@ -139,7 +139,7 @@ services:
       - ${YD_API_PHP_CONF_FILE}:/usr/local/etc/php/php.ini
       - ${YD_API_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
       - ${YD_HORIZON_PHP_LOG_DIR}:/var/log/php
-      - ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
+      #- ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
       - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
       - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
       - ${ROOT_GITCONFIG_FILE}:/home/www-data/.gitconfig
