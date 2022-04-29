@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 networks:
   default:
@@ -71,6 +71,7 @@ services:
     container_name: yd_api
     hostname: yd_api
     working_dir: /www/wwwroot
+    init: true
     user: www-data:www-data
     # docker stop 往容器主进程发送的信号
     stop_signal: SIGTERM
@@ -104,6 +105,7 @@ services:
     container_name: yd_crontab
     hostname: yd_crontab
     working_dir: /www/wwwroot
+    init: true
     user: www-data:www-data
     # docker stop 往容器主进程发送的信号
     stop_signal: SIGTERM
@@ -114,17 +116,16 @@ services:
       - ${YD_API_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
       - ${YD_CRONTAB_PHP_LOG_DIR}:/var/log/php
       - ${YD_CRONTAB_FILE}:/etc/crontabs/www-data
-      - ${YD_CRONTAB_PHP_LOG_DIR}:/var/log/supervisor/
-      - ${YD_CRONTAB_SUPERVISOR_INI}:/etc/supervisor/conf.d/crontab.ini
-      - ${YD_CRONTAB_SUPERVISOR_CONF_FILE}:/etc/supervisor/supervisord.conf
       #- ${COMPOSER_CACHE_DIR}:/tmp/composer/cache
       - ${COMPOSER_AUTH_JSON}:/tmp/composer/auth.json
       - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
       - ${ROOT_GITCONFIG_FILE}:/home/www-data/.gitconfig
       - ${ROOT_SSH_DIR}:/home/www-data/.ssh
+      - ${YD_CRONTAB_START_SH}:/home/www-data/start.sh
     restart: always
     cap_add:
       - SYS_PTRACE
+    command: /home/www-data/start.sh
     networks:
       - default
 
@@ -135,6 +136,7 @@ services:
     container_name: yd_horizon
     hostname: yd_horizon
     working_dir: /www/wwwroot
+    init: true
     user: www-data:www-data
     # docker stop 往容器主进程发送的信号
     stop_signal: SIGTERM
@@ -149,10 +151,11 @@ services:
       - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
       - ${ROOT_GITCONFIG_FILE}:/home/www-data/.gitconfig
       - ${ROOT_SSH_DIR}:/home/www-data/.ssh
+      - ${YD_HORIZON_START_SH}:/home/www-data/start.sh
     restart: always
     cap_add:
       - SYS_PTRACE
-    command: /usr/local/bin/php /www/wwwroot/artisan horizon
+    command: /home/www-data/start.sh
     networks:
       - default
 

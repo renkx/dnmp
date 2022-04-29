@@ -22,7 +22,7 @@ RUN curl -fsSLO "$SUPERCRONIC_URL" \
 ################### todo 安装 supercronic
 
 # todo 安装 zsh 和 git 等
-RUN apk --no-cache add zsh git openssh vim busybox-suid dumb-init
+RUN apk --no-cache add zsh git openssh vim busybox-suid
 
 RUN git clone https://gitee.com/renkx/ohmyzsh.git /home/www-data/.oh-my-zsh
 
@@ -35,5 +35,3 @@ RUN mv /home/www-data/extra/zshrc /home/www-data/.zshrc \
 
 # todo 工作目录
 WORKDIR /www/wwwroot
-
-ENTRYPOINT ["dumb-init", "--"]
