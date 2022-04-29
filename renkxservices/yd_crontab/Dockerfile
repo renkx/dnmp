@@ -27,6 +27,8 @@ RUN curl -fsSLO "$SUPERCRONIC_URL" \
 RUN git clone https://gitee.com/renkx/ohmyzsh.git /home/www-data/.oh-my-zsh
 
 RUN mv /home/www-data/extra/zshrc /home/www-data/.zshrc \
+    && chown -R www-data:www-data /home/www-data \
+    && mkdir /tmp/composer && chown -R www-data:www-data /tmp/composer \
 	&& rm -rf /var/cache/apk/* /home/www-data/extra \
     # todo 最后需要删除zsh操作记录
     && rm -f /home/www-data/.zsh_history.new

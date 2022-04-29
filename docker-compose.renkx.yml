@@ -74,6 +74,10 @@ services:
     user: www-data:www-data
     # docker stop 往容器主进程发送的信号
     stop_signal: SIGTERM
+    environment:
+      - HTTP_WORKERS=${YD_API_HTTP_WORKERS}
+      - TASK_WORKERS=${YD_API_TASK_WORKERS}
+      - HTTP_PORT=9000
     volumes:
       - ${YD_API_WWWROOT_DIR}:/www/wwwroot/
       - ${SYS_DIR}:/renkxsys/
@@ -85,10 +89,11 @@ services:
       - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
       - ${ROOT_GITCONFIG_FILE}:/home/www-data/.gitconfig
       - ${ROOT_SSH_DIR}:/home/www-data/.ssh
+      - ${YD_API_START_SH}:/home/www-data/start.sh
     restart: always
     cap_add:
       - SYS_PTRACE
-    command: "${YD_API_COMMAND}"
+    command: /home/www-data/start.sh
     networks:
       - default
 
