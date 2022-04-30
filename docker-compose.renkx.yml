@@ -35,7 +35,12 @@ services:
       - ${NGINX_LOG_DIR}:/var/log/nginx/
     environment:
       TZ: "$TZ"
-    restart: always
+    restart: unless-stopped
+    init: true
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "3"
     networks:
       default:
         ipv4_address: ${NGINX_IPV4}
@@ -58,7 +63,12 @@ services:
       - ${ROOT_SSH_DIR}:/root/.ssh
     extra_hosts:
       - "${DOMAIN_JDJSJAPI}:${NGINX_IPV4}"
-    restart: always
+    restart: unless-stopped
+    init: true
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "3"
     cap_add:
       - SYS_PTRACE
     networks:
@@ -72,6 +82,10 @@ services:
     hostname: yd_api
     working_dir: /www/wwwroot
     init: true
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "3"
     user: www-data:www-data
     # docker stop 往容器主进程发送的信号
     stop_signal: SIGTERM
@@ -91,7 +105,7 @@ services:
       - ${ROOT_GITCONFIG_FILE}:/home/www-data/.gitconfig
       - ${ROOT_SSH_DIR}:/home/www-data/.ssh
       - ${YD_API_START_SH}:/home/www-data/start.sh
-    restart: always
+    restart: unless-stopped
     cap_add:
       - SYS_PTRACE
     command: /home/www-data/start.sh
@@ -106,6 +120,10 @@ services:
     hostname: yd_crontab
     working_dir: /www/wwwroot
     init: true
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "3"
     user: www-data:www-data
     # docker stop 往容器主进程发送的信号
     stop_signal: SIGTERM
@@ -122,7 +140,7 @@ services:
       - ${ROOT_GITCONFIG_FILE}:/home/www-data/.gitconfig
       - ${ROOT_SSH_DIR}:/home/www-data/.ssh
       - ${YD_CRONTAB_START_SH}:/home/www-data/start.sh
-    restart: always
+    restart: unless-stopped
     cap_add:
       - SYS_PTRACE
     command: /home/www-data/start.sh
@@ -137,6 +155,10 @@ services:
     hostname: yd_horizon
     working_dir: /www/wwwroot
     init: true
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "3"
     user: www-data:www-data
     # docker stop 往容器主进程发送的信号
     stop_signal: SIGTERM
@@ -152,7 +174,7 @@ services:
       - ${ROOT_GITCONFIG_FILE}:/home/www-data/.gitconfig
       - ${ROOT_SSH_DIR}:/home/www-data/.ssh
       - ${YD_HORIZON_START_SH}:/home/www-data/start.sh
-    restart: always
+    restart: unless-stopped
     cap_add:
       - SYS_PTRACE
     command: /home/www-data/start.sh
@@ -163,9 +185,14 @@ services:
     image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
     container_name: yd_ws
     hostname: yd_ws
-    restart: always
+    restart: unless-stopped
     tty: true
     stdin_open: true
+    init: true
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "3"
     volumes:
       - ${YD_WS_CONF_JSON}:/app/laravel-echo-server.json
     extra_hosts:
@@ -200,30 +227,30 @@ services:
   #      - ${COMPOSER_CONFIG_JSON}:/tmp/composer/config.json
   #      - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig
   #      - ${ROOT_SSH_DIR}:/root/.ssh
-  #    restart: always
+  #    restart: unless-stopped
   #    cap_add:
   #      - SYS_PTRACE
   #    networks:
   #     - default
 
-  crontab:
-    image: registry.cn-beijing.aliyuncs.com/renkx/php:${PHP_DNMP_IMAGE}
-    container_name: crontab
-    hostname: crontab
-    working_dir: /www
-    volumes:
-      - ${SOURCE_DIR}:/www/
-      - ${SYS_DIR}:/renkxsys/
-      - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini
-      - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
-      - ${CRONTAB_PHP_LOG_DIR}:/var/log/php
-      - ${CRONTAB_ROOT_FILE}:/etc/crontabs/root
-    restart: always
-    cap_add:
-      - SYS_PTRACE
-    command: ["/usr/sbin/crond", "-f", "-d", "8"]
-    networks:
-      - default
+  #  crontab:
+  #    image: registry.cn-beijing.aliyuncs.com/renkx/php:${PHP_DNMP_IMAGE}
+  #    container_name: crontab
+  #    hostname: crontab
+  #    working_dir: /www
+  #    volumes:
+  #      - ${SOURCE_DIR}:/www/
+  #      - ${SYS_DIR}:/renkxsys/
+  #      - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini
+  #      - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
+  #      - ${CRONTAB_PHP_LOG_DIR}:/var/log/php
+  #      - ${CRONTAB_ROOT_FILE}:/etc/crontabs/root
+  #    restart: unless-stopped
+  #    cap_add:
+  #      - SYS_PTRACE
+  #    command: ["/usr/sbin/crond", "-f", "-d", "8"]
+  #    networks:
+  #      - default
 
   mysql:
     image: mysql:${MYSQL_VERSION}
@@ -236,7 +263,12 @@ services:
     volumes:
       - ${MYSQL_CONF_FILE}:/etc/mysql/conf.d/mysql.cnf
       - ${DATA_DIR}/mysql8:/var/lib/mysql/
-    restart: always
+    restart: unless-stopped
+    init: true
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "3"
     networks:
       - default
     # 如果不设置，mac-box-docker模式下共享和挂载同一个目录 mysql会报错
@@ -255,7 +287,12 @@ services:
       - ${REDIS_CONF_FILE}:/etc/redis.conf
       # vagrant报错情况：不开持久化，挂载data目录 docker整体崩溃
       #- ${DATA_DIR}/redis:/data/:rw
-    restart: always
+    restart: unless-stopped
+    init: true
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "3"
     entrypoint: ["redis-server", "/etc/redis.conf"]
     environment:
       TZ: "$TZ"
@@ -266,7 +303,12 @@ services:
     image: mongo
     container_name: mongodb
     hostname: mongodb
-    restart: always
+    restart: unless-stopped
+    init: true
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "3"
     ports:
       - "${MONGO_PORT}:27017"
     volumes:
@@ -285,7 +327,12 @@ services:
         TZ: "$TZ"
     container_name: frpc
     hostname: frpc
-    restart: always
+    restart: unless-stopped
+    init: true
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "3"
     volumes:
       - ${FRPC_CONF_DIR}/frpc.ini:/frpc.ini
       - ${FRPC_CONF_DIR}/conf:/conf
@@ -293,106 +340,106 @@ services:
     networks:
       - default
 
-  bbwws:
-    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
-    container_name: bbwws
-    hostname: bbwws
-    restart: always
-    tty: true
-    stdin_open: true
-    volumes:
-      - ${BBWWS_CONF_JSON}:/app/laravel-echo-server.json
-    extra_hosts:
-      - "${DOMAIN_BBWAPI}:${NGINX_IPV4}"
-    healthcheck:
-      test: /usr/local/bin/health-check
-      start_period: 5s
-      interval: 3s
-      timeout: 3s
-      retries: 10
-    networks:
-      - default
+  #  bbwws:
+  #    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
+  #    container_name: bbwws
+  #    hostname: bbwws
+  #    restart: unless-stopped
+  #    tty: true
+  #    stdin_open: true
+  #    volumes:
+  #      - ${BBWWS_CONF_JSON}:/app/laravel-echo-server.json
+  #    extra_hosts:
+  #      - "${DOMAIN_BBWAPI}:${NGINX_IPV4}"
+  #    healthcheck:
+  #      test: /usr/local/bin/health-check
+  #      start_period: 5s
+  #      interval: 3s
+  #      timeout: 3s
+  #      retries: 10
+  #    networks:
+  #      - default
 
-  bbwtdtws:
-    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
-    container_name: bbwtdtws
-    hostname: bbwtdtws
-    restart: always
-    tty: true
-    stdin_open: true
-    volumes:
-      - ${BBWTDTWS_CONF_JSON}:/app/laravel-echo-server.json
-    extra_hosts:
-      - "${DOMAIN_BBWAPI}:${NGINX_IPV4}"
-    healthcheck:
-      test: /usr/local/bin/health-check
-      start_period: 5s
-      interval: 3s
-      timeout: 3s
-      retries: 10
-    networks:
-      - default
+  #  bbwtdtws:
+  #    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
+  #    container_name: bbwtdtws
+  #    hostname: bbwtdtws
+  #    restart: unless-stopped
+  #    tty: true
+  #    stdin_open: true
+  #    volumes:
+  #      - ${BBWTDTWS_CONF_JSON}:/app/laravel-echo-server.json
+  #    extra_hosts:
+  #      - "${DOMAIN_BBWAPI}:${NGINX_IPV4}"
+  #    healthcheck:
+  #      test: /usr/local/bin/health-check
+  #      start_period: 5s
+  #      interval: 3s
+  #      timeout: 3s
+  #      retries: 10
+  #    networks:
+  #      - default
 
-  jdjsjws:
-    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
-    container_name: jdjsjws
-    hostname: jdjsjws
-    restart: always
-    tty: true
-    stdin_open: true
-    volumes:
-      - ${JDJSJWS_CONF_JSON}:/app/laravel-echo-server.json
-    extra_hosts:
-      - "${DOMAIN_JDJSJAPI}:${NGINX_IPV4}"
-    healthcheck:
-      test: /usr/local/bin/health-check
-      start_period: 5s
-      interval: 3s
-      timeout: 3s
-      retries: 10
-    networks:
-      - default
+  #  jdjsjws:
+  #    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
+  #    container_name: jdjsjws
+  #    hostname: jdjsjws
+  #    restart: unless-stopped
+  #    tty: true
+  #    stdin_open: true
+  #    volumes:
+  #      - ${JDJSJWS_CONF_JSON}:/app/laravel-echo-server.json
+  #    extra_hosts:
+  #      - "${DOMAIN_JDJSJAPI}:${NGINX_IPV4}"
+  #    healthcheck:
+  #      test: /usr/local/bin/health-check
+  #      start_period: 5s
+  #      interval: 3s
+  #      timeout: 3s
+  #      retries: 10
+  #    networks:
+  #      - default
 
-  akitadows:
-    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
-    container_name: akitadows
-    hostname: akitadows
-    restart: always
-    tty: true
-    stdin_open: true
-    volumes:
-      - ${AKITADOWS_CONF_JSON}:/app/laravel-echo-server.json
-    extra_hosts:
-      - "${DOMAIN_AKITADOAPI}:${NGINX_IPV4}"
-    healthcheck:
-      test: /usr/local/bin/health-check
-      start_period: 5s
-      interval: 3s
-      timeout: 3s
-      retries: 10
-    networks:
-      - default
+  #  akitadows:
+  #    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
+  #    container_name: akitadows
+  #    hostname: akitadows
+  #    restart: unless-stopped
+  #    tty: true
+  #    stdin_open: true
+  #    volumes:
+  #      - ${AKITADOWS_CONF_JSON}:/app/laravel-echo-server.json
+  #    extra_hosts:
+  #      - "${DOMAIN_AKITADOAPI}:${NGINX_IPV4}"
+  #    healthcheck:
+  #      test: /usr/local/bin/health-check
+  #      start_period: 5s
+  #      interval: 3s
+  #      timeout: 3s
+  #      retries: 10
+  #    networks:
+  #      - default
 
-  supervisor:
-    image: registry.cn-beijing.aliyuncs.com/renkx/php:${PHP_DNMP_IMAGE}
-    container_name: supervisor
-    hostname: supervisor
-    working_dir: /etc/supervisor/conf.d
-    volumes:
-      - ${SOURCE_DIR}:/www/
-      - ${SYS_DIR}:/renkxsys/
-      - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini
-      - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
-      - ${SUPERVISOR_PHP_LOG_DIR}:/var/log/php
-      - ${SUPERVISOR_LOG}:/var/log/supervisor/
-      - ${SUPERVISOR_CONFIG}:/etc/supervisor/conf.d/
-      - ${SUPERVISOR_CONF_FILE}:/etc/supervisor/supervisord.conf
-    restart: always
-    cap_add:
-      - SYS_PTRACE
-    command: ["supervisord", "--nodaemon", "--configuration", "/etc/supervisor/supervisord.conf"]
-    networks:
-      - default
+  #  supervisor:
+  #    image: registry.cn-beijing.aliyuncs.com/renkx/php:${PHP_DNMP_IMAGE}
+  #    container_name: supervisor
+  #    hostname: supervisor
+  #    working_dir: /etc/supervisor/conf.d
+  #    volumes:
+  #      - ${SOURCE_DIR}:/www/
+  #      - ${SYS_DIR}:/renkxsys/
+  #      - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini
+  #      - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
+  #      - ${SUPERVISOR_PHP_LOG_DIR}:/var/log/php
+  #      - ${SUPERVISOR_LOG}:/var/log/supervisor/
+  #      - ${SUPERVISOR_CONFIG}:/etc/supervisor/conf.d/
+  #      - ${SUPERVISOR_CONF_FILE}:/etc/supervisor/supervisord.conf
+  #    restart: unless-stopped
+  #    cap_add:
+  #      - SYS_PTRACE
+  #    command: ["supervisord", "--nodaemon", "--configuration", "/etc/supervisor/supervisord.conf"]
+  #    networks:
+  #      - default
 
   #  supervisor:
   #    build:
@@ -414,7 +461,7 @@ services:
   #      - ${SUPERVISOR_CONFIG}:/etc/supervisor/conf.d/:rw
   #      - ${SUPERVISOR_CONF_FILE}:/etc/supervisor/supervisord.conf:ro
   #      - ${SUPERVISOR_CRONTAB_ROOT_FILE}:/etc/crontabs/root
-  #    restart: always
+  #    restart: unless-stopped
   #    cap_add:
   #      - SYS_PTRACE
   #    networks:
@@ -425,9 +472,13 @@ services:
     container_name: node
     hostname: node
     working_dir: /www
-    restart: always
+    restart: unless-stopped
     tty: true
     stdin_open: true
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "3"
     volumes:
       - ${SOURCE_DIR}:/www/
       - ${ROOT_GITCONFIG_FILE}:/root/.gitconfig
