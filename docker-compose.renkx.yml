@@ -293,9 +293,9 @@ services:
       options:
         max-size: "1m"
         max-file: "3"
-    entrypoint: ["redis-server", "/etc/redis.conf"]
     environment:
       TZ: "$TZ"
+    command: redis-server /etc/redis.conf
     networks:
       - default
 
