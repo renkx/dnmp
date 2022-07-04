@@ -1,7 +1,8 @@
 version: "3.8"
 
 networks:
-  default:
+  docker:
+    external: true
     ipam:
       config:
         - subnet: ${DEFAULT_SUBNET}
@@ -42,7 +43,7 @@ services:
         max-size: "1m"
         max-file: "3"
     networks:
-      default:
+      docker:
         ipv4_address: ${NGINX_IPV4}
 
   php:
@@ -72,7 +73,7 @@ services:
     cap_add:
       - SYS_PTRACE
     networks:
-      - default
+      - docker
 
   yd_api:
     build:
@@ -105,12 +106,14 @@ services:
       - ${ROOT_GITCONFIG_FILE}:/home/www-data/.gitconfig
       - ${ROOT_SSH_DIR}:/home/www-data/.ssh
       - ${YD_API_START_SH}:/home/www-data/start.sh
+    extra_hosts:
+      - "${DOMAIN_YD_API}:${NGINX_IPV4}"
     restart: unless-stopped
     cap_add:
       - SYS_PTRACE
     command: /home/www-data/start.sh
     networks:
-      - default
+      - docker
 
   yd_crontab:
     build:
@@ -140,12 +143,14 @@ services:
       - ${ROOT_GITCONFIG_FILE}:/home/www-data/.gitconfig
       - ${ROOT_SSH_DIR}:/home/www-data/.ssh
       - ${YD_CRONTAB_START_SH}:/home/www-data/start.sh
+    extra_hosts:
+      - "${DOMAIN_YD_API}:${NGINX_IPV4}"
     restart: unless-stopped
     cap_add:
       - SYS_PTRACE
     command: /home/www-data/start.sh
     networks:
-      - default
+      - docker
 
   yd_horizon:
     build:
@@ -174,12 +179,14 @@ services:
       - ${ROOT_GITCONFIG_FILE}:/home/www-data/.gitconfig
       - ${ROOT_SSH_DIR}:/home/www-data/.ssh
       - ${YD_HORIZON_START_SH}:/home/www-data/start.sh
+    extra_hosts:
+      - "${DOMAIN_YD_API}:${NGINX_IPV4}"
     restart: unless-stopped
     cap_add:
       - SYS_PTRACE
     command: /home/www-data/start.sh
     networks:
-      - default
+      - docker
 
   yd_ws:
     image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
@@ -204,7 +211,7 @@ services:
       timeout: 3s
       retries: 10
     networks:
-      - default
+      - docker
 
   #  php:
   #    build:
@@ -231,26 +238,26 @@ services:
   #    cap_add:
   #      - SYS_PTRACE
   #    networks:
-  #     - default
+  #     - docker
 
-  #  crontab:
-  #    image: registry.cn-beijing.aliyuncs.com/renkx/php:${PHP_DNMP_IMAGE}
-  #    container_name: crontab
-  #    hostname: crontab
-  #    working_dir: /www
-  #    volumes:
-  #      - ${SOURCE_DIR}:/www/
-  #      - ${SYS_DIR}:/renkxsys/
-  #      - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini
-  #      - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
-  #      - ${CRONTAB_PHP_LOG_DIR}:/var/log/php
-  #      - ${CRONTAB_ROOT_FILE}:/etc/crontabs/root
-  #    restart: unless-stopped
-  #    cap_add:
-  #      - SYS_PTRACE
-  #    command: ["/usr/sbin/crond", "-f", "-d", "8"]
-  #    networks:
-  #      - default
+  crontab:
+    image: registry.cn-beijing.aliyuncs.com/renkx/php:${PHP_DNMP_IMAGE}
+    container_name: crontab
+    hostname: crontab
+    working_dir: /www
+    volumes:
+      - ${SOURCE_DIR}:/www/
+      - ${SYS_DIR}:/renkxsys/
+      - ${PHP_PHP_CONF_FILE}:/usr/local/etc/php/php.ini
+      - ${PHP_FPM_CONF_FILE}:/usr/local/etc/php-fpm.d/www.conf
+      - ${CRONTAB_PHP_LOG_DIR}:/var/log/php
+      - ${CRONTAB_ROOT_FILE}:/etc/crontabs/root
+    restart: unless-stopped
+    cap_add:
+      - SYS_PTRACE
+    command: ["/usr/sbin/crond", "-f", "-d", "8"]
+    networks:
+      - docker
 
   mysql:
     image: mysql:${MYSQL_VERSION}
@@ -270,7 +277,7 @@ services:
         max-size: "1m"
         max-file: "3"
     networks:
-      - default
+      - docker
     # 如果不设置，mac-box-docker模式下共享和挂载同一个目录 mysql会报错
     #command: --innodb-use-native-aio=0
     environment:
@@ -297,7 +304,7 @@ services:
       TZ: "$TZ"
     command: redis-server /etc/redis.conf
     networks:
-      - default
+      - docker
 
   mongodb:
     image: mongo
@@ -317,7 +324,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: "${MONGO_USER}"
       MONGO_INITDB_ROOT_PASSWORD: "${MONGO_PASS}"
     networks:
-      - default
+      - docker
 
   frpc:
     build:
@@ -338,27 +345,27 @@ services:
       - ${FRPC_CONF_DIR}/conf:/conf
     command: /frp/frpc -c /frpc.ini
     networks:
-      - default
+      - docker
 
-  #  bbwws:
-  #    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
-  #    container_name: bbwws
-  #    hostname: bbwws
-  #    restart: unless-stopped
-  #    tty: true
-  #    stdin_open: true
-  #    volumes:
-  #      - ${BBWWS_CONF_JSON}:/app/laravel-echo-server.json
-  #    extra_hosts:
-  #      - "${DOMAIN_BBWAPI}:${NGINX_IPV4}"
-  #    healthcheck:
-  #      test: /usr/local/bin/health-check
-  #      start_period: 5s
-  #      interval: 3s
-  #      timeout: 3s
-  #      retries: 10
-  #    networks:
-  #      - default
+  bbwws:
+    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
+    container_name: bbwws
+    hostname: bbwws
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+    volumes:
+      - ${BBWWS_CONF_JSON}:/app/laravel-echo-server.json
+    extra_hosts:
+      - "${DOMAIN_BBWAPI}:${NGINX_IPV4}"
+    healthcheck:
+      test: /usr/local/bin/health-check
+      start_period: 5s
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    networks:
+      - docker
 
   #  bbwtdtws:
   #    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
@@ -378,7 +385,7 @@ services:
   #      timeout: 3s
   #      retries: 10
   #    networks:
-  #      - default
+  #      - docker
 
   #  jdjsjws:
   #    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
@@ -398,7 +405,7 @@ services:
   #      timeout: 3s
   #      retries: 10
   #    networks:
-  #      - default
+  #      - docker
 
   #  akitadows:
   #    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
@@ -418,7 +425,7 @@ services:
   #      timeout: 3s
   #      retries: 10
   #    networks:
-  #      - default
+  #      - docker
 
   #  supervisor:
   #    image: registry.cn-beijing.aliyuncs.com/renkx/php:${PHP_DNMP_IMAGE}
@@ -439,7 +446,7 @@ services:
   #      - SYS_PTRACE
   #    command: ["supervisord", "--nodaemon", "--configuration", "/etc/supervisor/supervisord.conf"]
   #    networks:
-  #      - default
+  #      - docker
 
   #  supervisor:
   #    build:
@@ -465,7 +472,7 @@ services:
   #    cap_add:
   #      - SYS_PTRACE
   #    networks:
-  #      - default
+  #      - docker
 
   node:
     image: "registry.cn-beijing.aliyuncs.com/renkx/node:0.1"
@@ -486,4 +493,4 @@ services:
       - ${ROOT_OH_MY_ZSH}:/root/.oh-my-zsh
       - ${ROOT_ZSHRC_FILE}:/root/.zshrc
     networks:
-      - default
+      - docker
