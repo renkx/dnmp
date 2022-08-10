@@ -80,7 +80,6 @@ services:
     container_name: yd_api
     hostname: yd_api
     working_dir: /www/wwwroot
-    init: true
     logging:
       options:
         max-size: "1m"
@@ -120,7 +119,6 @@ services:
     container_name: yd_crontab
     hostname: yd_crontab
     working_dir: /www/wwwroot
-    init: true
     logging:
       options:
         max-size: "1m"
@@ -157,7 +155,6 @@ services:
     container_name: yd_horizon
     hostname: yd_horizon
     working_dir: /www/wwwroot
-    init: true
     logging:
       options:
         max-size: "1m"
