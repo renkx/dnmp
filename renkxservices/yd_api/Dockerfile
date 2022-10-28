@@ -11,7 +11,11 @@ ADD ./renkxservices/extra  /home/www-data/extra
 RUN curl -o /usr/bin/composer https://mirrors.aliyun.com/composer/composer.phar \
     && chmod +x /usr/bin/composer \
     # 安装必要的软件
+    && apk update \
     && apk --no-cache add zsh git openssh vim \
+    # 安装nodejs npm，chokidar 文件监视库
+    && apk --no-cache add nodejs npm \
+    && npm install cnpm -g --registry=https://registry.npmmirror.com \
     # oh-my-zsh 安装
     && git clone https://gitee.com/renkx/ohmyzsh.git /home/www-data/.oh-my-zsh \
     && mv /home/www-data/extra/zshrc /home/www-data/.zshrc \
