@@ -90,6 +90,7 @@ services:
     environment:
       - HTTP_WORKERS=${YD_API_HTTP_WORKERS}
       - TASK_WORKERS=${YD_API_TASK_WORKERS}
+      - MAX_REQUESTS=${YD_API_MAX_REQUESTS}
       - HTTP_PORT=9000
     volumes:
       - ${YD_API_WWWROOT_DIR}:/www/wwwroot/
@@ -184,7 +185,7 @@ services:
       - docker
 
   yd_ws:
-    image: oanhnn/laravel-echo-server:${LARAVEL_ECHO_SERVER_VERSION}
+    image: pikaqiu-01-docker.pkg.coding.net/kdd-ec2/kdd/laravel-echo-server:1.0.0
     container_name: yd_ws
     hostname: yd_ws
     restart: unless-stopped
