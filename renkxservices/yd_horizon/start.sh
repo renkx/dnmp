@@ -13,5 +13,5 @@ echo 'cache initialize ...'
 #php artisan route:cache
 #php artisan event:cache
 
-exec /usr/local/bin/php /www/wwwroot/artisan horizon
+exec /usr/local/bin/php /www/wwwroot/artisan horizon --test
 
