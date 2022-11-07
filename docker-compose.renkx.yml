@@ -163,6 +163,9 @@ services:
     user: www-data:www-data
     # docker stop 往容器主进程发送的信号
     stop_signal: SIGTERM
+    environment:
+      - OPEN_TEST=${YD_HORIZON_OPEN_TEST}
+      - MAX_PROCESSES=${YD_HORIZON_MAX_PROCESSES}
     volumes:
       - ${YD_API_WWWROOT_DIR}:/www/wwwroot/
       - ${SYS_DIR}:/renkxsys/
