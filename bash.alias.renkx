@@ -5,6 +5,7 @@ alias dphpbb='docker exec -it -w=/www/hc/baobao-api php zsh'
 alias dphpjdjsj='docker exec -it -w=/www/jdjsj/jdjsj-api php zsh'
 alias dydapi='docker exec -it -w=/www/wwwroot yd_api zsh'
 alias dphp8akitado='docker exec -it -w=/www/akitado/akitado-api php8 zsh'
+alias ydadminnpm="docker run --rm -v ~/code/app/yd/kdd-fd-admin-kernel-sihui:/apps -w /kdd-fd-admin-kernel-sihui pikaqiu-01-docker.pkg.coding.net/kdd-ec2/node-package/sihui-build:0.0.2 sh -c 'cp -r /apps/. /kdd-fd-admin-kernel-sihui && npm run production && cp -rf /kdd-fd-admin-kernel-sihui/production /apps'"
 
 # ssh alias
 alias csc='cat ~/.ssh/config'
