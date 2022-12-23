@@ -1,5 +1,5 @@
 # webapp 生成的 基础镜像
-FROM registry.cn-beijing.aliyuncs.com/kdd/php:php8-1.3
+FROM registry.cn-beijing.aliyuncs.com/kdd/php:php8-1.4
 
     # 设置composer 的 cache home
 ENV COMPOSER_HOME=/tmp/composer
