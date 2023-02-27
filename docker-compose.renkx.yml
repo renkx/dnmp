@@ -474,7 +474,7 @@ services:
   #      - docker
 
   node:
-    image: "registry.cn-beijing.aliyuncs.com/renkx/node:0.1"
+    image: "registry.cn-beijing.aliyuncs.com/renkx/node:0.2"
     container_name: node
     hostname: node
     working_dir: /www
