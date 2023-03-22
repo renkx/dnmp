@@ -11,6 +11,8 @@ zstyle :bracketed-paste-magic paste-finish pastefinish
 
 # kubectl alias
 alias kubectl_production='kubectl --kubeconfig ~/.kube/config_production'
+alias kubectl_qa='kubectl --kubeconfig ~/.kube/config_qa'
+alias kubectl_cloud='kubectl --kubeconfig ~/.kube/config_cloud'
 
 # load zsh-autosuggestions plugin
 source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
