@@ -60,13 +60,16 @@ isPhpVersionGreaterOrEqual()
 installExtensionFromTgz()
 {
     tgzName=$1
+    para1=
     extensionName="${tgzName%%-*}"
-
+    if [  $2 ]; then  
+        para1=$2
+    fi  
     mkdir ${extensionName}
     tar -xf ${tgzName}.tgz -C ${extensionName} --strip-components=1
-    ( cd ${extensionName} && phpize && ./configure && make ${MC} && make install )
+    ( cd ${extensionName} && phpize && ./configure ${para1} && make ${MC} && make install )
 
-    docker-php-ext-enable ${extensionName} $2
+    docker-php-ext-enable ${extensionName}
 }
 
 
@@ -528,8 +531,7 @@ fi
 
 if [[ -z "${EXTENSIONS##*,redis,*}" ]]; then
     echo "---------- Install redis ----------"
-    pecl install redis
-    docker-php-ext-enable redis
+    installExtensionFromTgz redis-5.3.7
 fi
 
 if [[ -z "${EXTENSIONS##*,apcu,*}" ]]; then
@@ -541,7 +543,7 @@ fi
 if [[ -z "${EXTENSIONS##*,memcached,*}" ]]; then
     echo "---------- Install memcached ----------"
     apk add --no-cache libmemcached-dev zlib-dev
-    pecl install memcached
+    pecl install memcached-3.2.3
     docker-php-ext-enable memcached
 fi
 
@@ -553,8 +555,7 @@ fi
 
 if [[ -z "${EXTENSIONS##*,xdebug,*}" ]]; then
     echo "---------- Install xdebug ----------"
-    pecl install xdebug
-    docker-php-ext-enable xdebug
+    installExtensionFromTgz xdebug-3.2.0
 fi
 
 if [[ -z "${EXTENSIONS##*,event,*}" ]]; then
@@ -585,9 +586,11 @@ fi
 
 
 if [[ -z "${EXTENSIONS##*,swoole,*}" ]]; then
-    echo "---------- Install swoole ----------"
-    pecl install swoole
-    docker-php-ext-enable swoole
+    echo "---------- Install swoole ----------"    
+    isPhpVersionGreaterOrEqual 8 0
+    if [[ "$?" = "1" ]]; then
+        installExtensionFromTgz swoole-5.0.2 --enable-openssl
+    fi
 fi
 
 if [[ -z "${EXTENSIONS##*,zip,*}" ]]; then
