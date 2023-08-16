@@ -12,13 +12,7 @@ volumes:
 
 services:
   nginx:
-    build:
-      context: .
-      dockerfile: ./renkxservices/nginx/Dockerfile
-      args:
-        NGINX_VERSION: nginx:${NGINX_VERSION}
-        CONTAINER_PACKAGE_URL: ${CONTAINER_PACKAGE_URL}
-        NGINX_INSTALL_APPS: ${NGINX_INSTALL_APPS}
+    image: nginx:${NGINX_VERSION}
     container_name: nginx
     hostname: nginx
     ports:
