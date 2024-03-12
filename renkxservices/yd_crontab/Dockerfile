@@ -5,9 +5,9 @@ FROM registry.cn-beijing.aliyuncs.com/kdd/php:php8-1.5
 ADD ./renkxservices/extra  /home/www-data/extra
 
     # todo 安装 supercronic
-ENV SUPERCRONIC_URL=https://gitee.com/renkx/supercronic/attach_files/1047315/download/supercronic-linux-amd64 \
+ENV SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.2.28/supercronic-linux-amd64 \
     SUPERCRONIC=supercronic-linux-amd64 \
-    SUPERCRONIC_SHA1SUM=048b95b48b708983effb2e5c935a1ef8483d9e3e \
+    SUPERCRONIC_SHA1SUM=fe1a81a8a5809deebebbd7a209a3b97e542e2bcd \
     # 设置composer 的 cache home
     COMPOSER_HOME=/tmp/composer
 
