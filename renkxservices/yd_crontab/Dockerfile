@@ -1,5 +1,5 @@
 # webapp 生成的 基础镜像
-FROM registry.cn-beijing.aliyuncs.com/kdd/php:php8-1.5
+FROM registry.cn-beijing.aliyuncs.com/kdd/php:php8-1.6
 
 # todo 设置扩展数据
 ADD ./renkxservices/extra  /home/www-data/extra
