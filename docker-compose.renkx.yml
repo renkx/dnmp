@@ -1,5 +1,3 @@
-version: "3.8"
-
 # docker network create --subnet 1.1.0.0/24 docker
 networks:
   docker:
@@ -28,7 +26,7 @@ services:
       - ${NGINX_LOG_DIR}:/var/log/nginx/
     environment:
       TZ: "$TZ"
-    restart: unless-stopped
+    restart: always
     init: true
     logging:
       options:
@@ -56,7 +54,7 @@ services:
       - ${ROOT_SSH_DIR}:/root/.ssh
     extra_hosts:
       - "${DOMAIN_JDJSJAPI}:${NGINX_IPV4}"
-    restart: unless-stopped
+    restart: always
     init: true
     logging:
       options:
@@ -100,7 +98,7 @@ services:
       - ${YD_API_START_SH}:/home/www-data/start.sh
     extra_hosts:
       - "${DOMAIN_YD_API}:${NGINX_IPV4}"
-    restart: unless-stopped
+    restart: always
     cap_add:
       - SYS_PTRACE
     command: /home/www-data/start.sh
@@ -136,7 +134,7 @@ services:
       - ${YD_CRONTAB_START_SH}:/home/www-data/start.sh
     extra_hosts:
       - "${DOMAIN_YD_API}:${NGINX_IPV4}"
-    restart: unless-stopped
+    restart: always
     cap_add:
       - SYS_PTRACE
     command: /home/www-data/start.sh
@@ -174,7 +172,7 @@ services:
       - ${YD_HORIZON_START_SH}:/home/www-data/start.sh
     extra_hosts:
       - "${DOMAIN_YD_API}:${NGINX_IPV4}"
-    restart: unless-stopped
+    restart: always
     cap_add:
       - SYS_PTRACE
     command: /home/www-data/start.sh
@@ -185,7 +183,7 @@ services:
     image: pikaqiu-01-docker.pkg.coding.net/kdd-ec2/kdd/laravel-echo-server:1.0.0
     container_name: yd_ws
     hostname: yd_ws
-    restart: unless-stopped
+    restart: always
     tty: true
     stdin_open: true
     init: true
@@ -263,7 +261,7 @@ services:
     volumes:
       - ${MYSQL_CONF_FILE}:/etc/mysql/conf.d/mysql.cnf
       - ${DATA_DIR}/mysql8:/var/lib/mysql/
-    restart: unless-stopped
+    restart: always
     init: true
     logging:
       options:
@@ -287,7 +285,7 @@ services:
       - ${REDIS_CONF_FILE}:/etc/redis.conf
       # vagrant报错情况：不开持久化，挂载data目录 docker整体崩溃
       #- ${DATA_DIR}/redis:/data/:rw
-    restart: unless-stopped
+    restart: always
     init: true
     logging:
       options:
@@ -303,7 +301,7 @@ services:
     image: mongo
     container_name: mongodb
     hostname: mongodb
-    restart: unless-stopped
+    restart: always
     init: true
     logging:
       options:
@@ -327,7 +325,7 @@ services:
         TZ: "$TZ"
     container_name: frpc
     hostname: frpc
-    restart: unless-stopped
+    restart: always
     init: true
     logging:
       options:
