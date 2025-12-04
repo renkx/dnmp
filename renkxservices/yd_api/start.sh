@@ -7,7 +7,7 @@ cd /www/wwwroot
 echo
 echo "start time：`date '+%Y-%m-%d %H:%M:%S'`"
 
-cnpm install --save-dev chokidar
+cnpm install --save-dev chokidar@3
 
 http_workers=${HTTP_WORKERS:-4}
 
