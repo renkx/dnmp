@@ -332,9 +332,9 @@ services:
         max-size: "1m"
         max-file: "3"
     volumes:
-      - ${FRPC_CONF_DIR}/frpc.ini:/frpc.ini
+      - ${FRPC_CONF_DIR}/frpc.toml:/frpc.toml
       - ${FRPC_CONF_DIR}/conf:/conf
-    command: /frp/frpc -c /frpc.ini
+    command: /frp/frpc -c /frpc.toml
     networks:
       - docker
 
