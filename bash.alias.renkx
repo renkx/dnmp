@@ -26,6 +26,6 @@ alias dphp8akitado='docker exec -it -w=/www/akitado/akitado-api php8 zsh'
 alias ydadminnpm="docker run --rm -v ~/code/app/yd/kdd-fd-admin-kernel-sihui:/apps -w /kdd-fd-admin-kernel-sihui pikaqiu-01-docker.pkg.coding.net/kdd-ec2/node-package/sihui-build:0.0.4 sh -c 'cp -r /apps/. /kdd-fd-admin-kernel-sihui && pnpm install && npm run production && cp -rf /kdd-fd-admin-kernel-sihui/production /apps'"
 
 # ssh alias
-alias csc='cat ~/.ssh/config'
-alias vsc='vim ~/.ssh/config'
+alias csc='cat ~/code/renkx/sys/ssh/conf.d/*.conf'
+alias vsc='vim ~/code/renkx/sys/ssh/conf.d/*.conf'
 alias vsk='vim ~/.ssh/known_hosts'
