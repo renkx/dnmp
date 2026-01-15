@@ -318,11 +318,7 @@ services:
       - docker
 
   frpc:
-    build:
-      context: ./renkxservices/frp
-      args:
-        FRP_VERSION: "${FRP_VERSION}"
-        TZ: "$TZ"
+    image: registry.cn-beijing.aliyuncs.com/renkx/frp:latest
     container_name: frpc
     hostname: frpc
     restart: always
