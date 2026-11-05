@@ -1,5 +1,5 @@
 # webapp 生成的 基础镜像
-FROM pikaqiu-01-docker.pkg.coding.net/kdd-ec2/kdd/php:php-debian-8-2.x
+FROM pikaqiu-01-docker.pkg.coding.net/kdd-ec2/kdd/php:php-debian-8-2.x-1
 
     # 设置composer 的 cache home
 ENV COMPOSER_HOME=/tmp/composer \
@@ -23,6 +23,9 @@ RUN export option="--no-install-recommends -y" \
     && git clone https://gitee.com/renkx/ohmyzsh.git /home/www-data/.oh-my-zsh \
     && mv /home/www-data/extra/zshrc /home/www-data/.zshrc \
     && chown -R www-data:www-data /home/www-data \
+    && git clone --depth=1 https://gitee.com/renkx/zsh-autosuggestions.git /home/www-data/.oh-my-zsh/custom/plugins/zsh-autosuggestions \
+    && git clone --depth=1 https://gitee.com/renkx/zsh-syntax-highlighting.git /home/www-data/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting \
+    && git clone --depth=1 https://gitee.com/renkx/zsh-history-substring-search /home/www-data/.oh-my-zsh/custom/plugins/zsh-history-substring-search \
     && mkdir ${COMPOSER_HOME} && chown -R www-data:www-data ${COMPOSER_HOME} \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /home/www-data/extra \
     # todo 最后需要删除zsh操作记录
